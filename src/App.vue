@@ -8,11 +8,15 @@
       <div class="nav-links">
         <router-link to="/">Catalogue</router-link>
         <router-link to="/login">Connexion</router-link>
+  
+      <router-link to="/quiz">🎯 Quiz</router-link>
+        
       </div>
     </nav>
 
     <!-- PAGE -->
     <main>
+      
       <router-view />
     </main>
   </div>

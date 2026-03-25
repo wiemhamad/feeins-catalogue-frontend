@@ -1,26 +1,10 @@
 <template>
-<<<<<<< HEAD
   <div id="app">
     <!-- NAVBAR -->
-    <nav class="navbar">
-      <!-- Brand -->
-      <div class="brand">
-        <div class="brand-logo">F</div>
-        <span>FEEINS</span>
-  
-      </div>
-
-      <div class="nav-links">
-        <router-link to="/">Catalogue</router-link>
-        <router-link to="/login">Connexion</router-link>  
-      <router-link to="/quiz"> Quiz</router-link>
-        
-      </div>
-    </nav>
-=======
-  <div class="app-shell">
     <header class="site-header">
       <nav class="site-nav">
+
+        <!-- Brand -->
         <RouterLink to="/" class="brand">
           <span class="brand-mark">F</span>
           <span class="brand-text">
@@ -28,14 +12,15 @@
             <small>Catalogue de ressources</small>
           </span>
         </RouterLink>
->>>>>>> c3be1c632355a06eacb3c91e4a69bddbd5d1f536
 
+        <!-- Links -->
         <div class="nav-links">
           <RouterLink to="/">Accueil</RouterLink>
           <RouterLink to="/catalogue">Catalogue</RouterLink>
           <RouterLink to="/quiz">Quiz</RouterLink>
           <RouterLink to="/login">Connexion</RouterLink>
         </div>
+
       </nav>
     </header>
 
@@ -57,16 +42,8 @@
   --primary-soft: #ccfbf1;
 }
 
-<<<<<<< HEAD
-.navbar {
-  background: #b58ea5; color: white;
-  padding: 5px 030px;
-  display: flex; justify-content: space-between; align-items: center;
-  position: sticky; top: 0; z-index: 100;
-=======
 * {
   box-sizing: border-box;
->>>>>>> c3be1c632355a06eacb3c91e4a69bddbd5d1f536
 }
 
 body {
@@ -79,19 +56,24 @@ body {
 
 a {
   color: inherit;
+  text-decoration: none;
 }
 
-#app,
-.app-shell {
+#app {
   min-height: 100vh;
 }
 
+/* HEADER */
 .site-header {
   position: sticky;
   top: 0;
   z-index: 20;
   padding: 16px 20px 0;
-  background: linear-gradient(180deg, rgba(244, 247, 251, 0.96), rgba(244, 247, 251, 0.82));
+  background: linear-gradient(
+    180deg,
+    rgba(244, 247, 251, 0.96),
+    rgba(244, 247, 251, 0.82)
+  );
   backdrop-filter: blur(6px);
 }
 
@@ -108,11 +90,11 @@ a {
   background: var(--panel);
 }
 
+/* BRAND */
 .brand {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 12px;
-  text-decoration: none;
 }
 
 .brand-mark {
@@ -124,7 +106,6 @@ a {
   background: linear-gradient(135deg, #0f766e, #14b8a6);
   color: #fff;
   font-weight: 800;
-  font-size: 1rem;
 }
 
 .brand-text {
@@ -142,6 +123,7 @@ a {
   font-size: 0.78rem;
 }
 
+/* NAV LINKS */
 .nav-links {
   display: flex;
   align-items: center;
@@ -152,7 +134,6 @@ a {
 .nav-links a {
   padding: 10px 14px;
   border-radius: 999px;
-  text-decoration: none;
   color: var(--muted);
   font-weight: 600;
   transition: 0.2s ease;
@@ -163,43 +144,17 @@ a {
   background: var(--primary-soft);
   color: var(--primary);
 }
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 28px;
-}
-.brand-logo {
-  width: 28px; height: 28px;
-  background: linear-gradient(135deg, #ec4899, #8b5cf6);
-  border-radius: 7px;
-  color: white;
-  font-weight: 800;
-  font-size: 14px;
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'Syne', sans-serif;
-}
-.brand span {
-  font-family: 'Syne', sans-serif;
-  font-weight: 700;
-  font-size: 0.9rem;
-  color: rgba(255,255,255,0.9);
-  flex: 1;
-}
-.brand-nav {
-  display: flex;
-  gap: 5px;
-  align-items: center;
-}
 
+/* MAIN */
 .app-main {
   padding: 24px 20px 40px;
 }
 
+/* RESPONSIVE */
 @media (max-width: 760px) {
   .site-nav {
-    align-items: flex-start;
     flex-direction: column;
+    align-items: flex-start;
   }
 
   .nav-links {

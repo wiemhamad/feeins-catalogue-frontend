@@ -160,7 +160,7 @@ const registerForm = ref({
 })
 
 // Remplir automatiquement les comptes de test
-const remplirAdmin = () => {
+const remplirAdmin = () => { //tjzihvz
   loginForm.value.email = 'admin@feeins.fr'
   loginForm.value.motDePasse = 'admin123'
 }

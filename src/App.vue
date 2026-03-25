@@ -2,14 +2,17 @@
   <div id="app">
     <!-- NAVBAR -->
     <nav class="navbar">
-      <div class="nav-brand">
-        📚 FEEINS Catalogue
+      <!-- Brand -->
+      <div class="brand">
+        <div class="brand-logo">F</div>
+        <span>FEEINS</span>
+  
       </div>
+
       <div class="nav-links">
         <router-link to="/">Catalogue</router-link>
-        <router-link to="/login">Connexion</router-link>
-  
-      <router-link to="/quiz">🎯 Quiz</router-link>
+        <router-link to="/login">Connexion</router-link>  
+      <router-link to="/quiz"> Quiz</router-link>
         
       </div>
     </nav>
@@ -27,8 +30,8 @@
 body { font-family: 'Segoe UI', sans-serif; background: #f5f6fa; }
 
 .navbar {
-  background: #2c3e50; color: white;
-  padding: 15px 30px;
+  background: #b58ea5; color: white;
+  padding: 5px 030px;
   display: flex; justify-content: space-between; align-items: center;
   position: sticky; top: 0; z-index: 100;
 }
@@ -42,6 +45,34 @@ body { font-family: 'Segoe UI', sans-serif; background: #f5f6fa; }
 .nav-links a:hover,
 .nav-links a.router-link-active {
   background: rgba(255,255,255,0.2);
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+.brand-logo {
+  width: 28px; height: 28px;
+  background: linear-gradient(135deg, #ec4899, #8b5cf6);
+  border-radius: 7px;
+  color: white;
+  font-weight: 800;
+  font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif;
+}
+.brand span {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.9);
+  flex: 1;
+}
+.brand-nav {
+  display: flex;
+  gap: 5px;
+  align-items: center;
 }
 
 main { padding: 20px; }

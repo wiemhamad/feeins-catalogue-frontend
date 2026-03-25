@@ -1,10 +1,14 @@
 <template>
   <div class="login-page">
+    
     <div class="login-card">
 
       <!-- Logo -->
       <div class="login-header">
-        <h1>📚 FEEINS</h1>
+        <h1> <div class="brand">
+        <div class="brand-logo">F</div>
+        <span>FEEINS</span>
+      </div> </h1>
         <p>Catalogue de grains pédagogiques</p>
       </div>
 
@@ -241,7 +245,7 @@ const register = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+  background: linear-gradient(135deg, #1a0533 0%, #b471be 100%);
   padding: 20px;
 }
 
@@ -253,7 +257,34 @@ const register = async () => {
   max-width: 420px;
   box-shadow: 0 20px 40px rgba(0,0,0,0.2);
 }
-
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+.brand-logo {
+  width: 28px; height: 28px;
+  background: linear-gradient(135deg, #ec4899, #8b5cf6);
+  border-radius: 7px;
+  color: white;
+  font-weight: 800;
+  font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif;
+}
+.brand span {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: rgba(178, 26, 171, 0.9);
+  flex: 1;
+}
+.brand-nav {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
 .login-header {
   text-align: center;
   margin-bottom: 25px;

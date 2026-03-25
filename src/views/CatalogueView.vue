@@ -111,6 +111,7 @@ import api from '@/api/axios'
 import RessourceCard from '@/components/RessourceCard.vue'
 
 const ressources = ref([])
+const niveaux = ref([])
 const loading = ref(true)
 const keyword = ref('')
 const tri = ref('pertinence')
@@ -121,12 +122,13 @@ const filtres = ref({
 
 let searchTimer = null
 
-const niveauxFiltres = [
+const niveauxFiltres = computed(() => [
   { value: null, label: 'Tous les niveaux' },
-  { value: 1, label: 'Debutant' },
-  { value: 2, label: 'Intermediaire' },
-  { value: 3, label: 'Avance' }
-]
+  ...niveaux.value.map((niveau) => ({
+    value: niveau.id,
+    label: niveau.nom
+  }))
+])
 
 const typesFiltres = [
   { value: null, label: 'Tous les types' },
@@ -137,6 +139,15 @@ const typesFiltres = [
 ]
 
 const total = computed(() => ressources.value.length)
+
+const chargerNiveaux = async () => {
+  try {
+    const response = await api.get('/api/niveaux')
+    niveaux.value = response.data || []
+  } catch (error) {
+    niveaux.value = []
+  }
+}
 
 const charger = async () => {
   loading.value = true
@@ -160,7 +171,7 @@ const charger = async () => {
       ? await api.post('/api/ressources/rechercher', payload)
       : await api.get('/api/ressources')
 
-    ressources.value = response.data
+    ressources.value = response.data || []
     appliquerTriLocal()
   } catch (error) {
     ressources.value = []
@@ -169,7 +180,10 @@ const charger = async () => {
   }
 }
 
-onMounted(charger)
+onMounted(async () => {
+  await chargerNiveaux()
+  await charger()
+})
 
 const setFiltre = (key, value) => {
   filtres.value[key] = filtres.value[key] === value ? null : value
@@ -201,6 +215,7 @@ const appliquerTriLocal = () => {
     ressources.value = [...ressources.value].sort(
       (a, b) => new Date(b.dateCreation || 0) - new Date(a.dateCreation || 0)
     )
+    return
   }
 }
 </script>

@@ -1,5 +1,11 @@
 <template>
   
+<<<<<<< HEAD
+      <router-link to="/quiz"> Quiz</router-link>
+        
+      </div>
+    </nav>
+=======
   <div class="app-shell">
     <header class="site-header">
       <nav class="site-nav">
@@ -10,6 +16,7 @@
             <small>Catalogue de ressources</small>
           </span>
         </RouterLink>
+>>>>>>> dca4e09a648f1ff3a40715c2a0a0e2f68ff4ad1e
 
         <div class="nav-links">
           <RouterLink to="/">Accueil</RouterLink>

@@ -160,7 +160,7 @@ const registerForm = ref({
 })
 
 // Remplir automatiquement les comptes de test
-const remplirAdmin = () => {
+const remplirAdmin = () => { //tjzihvz
   loginForm.value.email = 'admin@feeins.fr'
   loginForm.value.motDePasse = 'admin123'
 }
@@ -197,7 +197,7 @@ const login = async () => {
       if (data.typeUtilisateur === 'ADMINISTRATEUR_PEDAGOGIQUE') {
         router.push('/admin')
       } else {
-        router.push('/')
+        router.push('/catalogue')
       }
     }, 800)
 
@@ -225,7 +225,7 @@ const register = async () => {
     }))
 
     succes.value = `Compte créé avec succès ! Bienvenue ${data.nom}`
-    setTimeout(() => router.push('/'), 1000)
+    setTimeout(() => router.push('/catalogue'), 1000)
 
   } catch (err) {
     erreur.value = err.response?.data?.message || 'Erreur lors de l\'inscription'

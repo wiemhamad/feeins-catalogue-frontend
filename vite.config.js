@@ -12,12 +12,12 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:8080',
+        target: 'http://localhost:5000',
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path,
         headers: {
-          'Origin': 'http://localhost:8080'
+          'Origin': 'http://localhost:5000'
         }
       }
     }

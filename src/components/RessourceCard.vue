@@ -1,9 +1,6 @@
 <template>
   <article class="resource-card">
     <div class="card-top">
-      <div class="type-icon" :style="{ background: iconBg(ressource.typeSupport) }">
-        {{ iconeType(ressource.typeSupport) }}
-      </div>
       <span class="difficulty-badge" :class="diffClass(ressource.difficulte)">
         {{ labelDiff(ressource.difficulte) }}
       </span>
@@ -27,7 +24,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import { diffClass, iconBg, iconeType, labelDiff } from '@/utils/ressource-ui'
+import { diffClass, labelDiff } from '@/utils/ressource-ui'
 
 const props = defineProps({
   ressource: {
@@ -68,18 +65,8 @@ const metaLabel = computed(() => {
 .card-top {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 10px;
-}
-
-.type-icon {
-  width: 24px;
-  height: 24px;
-  border-radius: 8px;
-  display: grid;
-  place-items: center;
-  color: #fff;
-  font-size: 0.75rem;
 }
 
 .difficulty-badge {

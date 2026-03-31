@@ -38,7 +38,7 @@ import AppFooter from './components/AppFooter.vue'
 <style>
 :root {
   color-scheme: light;
-  --app-bg: #f3f0ff;
+  --app-bg: #f0f6ff;
   --panel: #ffffff;
   --line: #e5e7eb;
   --text: #1f2937;
@@ -77,8 +77,9 @@ a {
   top: 0;
   z-index: 20;
   padding: 16px 20px 0;
-  background: linear-gradient(180deg, rgba(244, 247, 251, 0.96), rgba(244, 247, 251, 0.82));
+  background: linear-gradient(135deg, #1a0533 0%, #b471be 100%);
   backdrop-filter: blur(6px);
+  box-shadow: 0 8px 24px rgba(255, 150, 190, 0.15);
 }
 
 .site-nav {
@@ -142,10 +143,11 @@ a {
   padding: 10px 14px;
   border-radius: 999px;
   text-decoration: none;
-  color: var(--muted);
+  color: white;
   font-weight: 600;
   font-size: 0.9rem;
   transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .nav-links a:hover {
@@ -155,8 +157,9 @@ a {
 }
 
 .nav-links a.router-link-active {
-  background: rgba(255, 255, 255, 0.25);
+  background: linear-gradient(135deg, #dcc5ff 0%, #ecd9ff 100%);
   color: white;
+  box-shadow: 0 8px 20px rgba(177, 136, 232, 0.25);
 }
 
 /* MAIN */

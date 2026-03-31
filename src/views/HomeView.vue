@@ -11,7 +11,6 @@
 
       <div class="hero-cards">
         <article class="profile-card">
-          <div class="profile-icon blue">🎓</div>
           <h2>Je suis apprenant</h2>
           <p>Etudiants ou enseignants souhaitant consulter et suivre des ressources en e-sante.</p>
           <ul>
@@ -20,11 +19,13 @@
             <li>Reviser des quiz H5P</li>
             <li>Suivre sa progression</li>
           </ul>
-          <RouterLink to="/catalogue" class="profile-link">Acceder au catalogue</RouterLink>
+          <div class="profile-actions">
+            <RouterLink to="/catalogue" class="profile-link">Acceder au catalogue</RouterLink>
+            <RouterLink to="/quiz" class="profile-link profile-link-secondary">Se positionner</RouterLink>
+          </div>
         </article>
 
         <article class="profile-card">
-          <div class="profile-icon purple">🧠</div>
           <span class="small-badge">Code requis</span>
           <h2>Je suis createur</h2>
           <p>Enseignants souhaitant creer et proposer des cours a leurs eleves.</p>
@@ -40,7 +41,6 @@
 
     <section class="features-section">
       <article class="feature-card orange">
-        <div class="feature-icon">📁</div>
         <div>
           <h3>Bibliotheque Riche</h3>
           <p>Plus de 500 grains pedagogiques</p>
@@ -48,7 +48,6 @@
       </article>
 
       <article class="feature-card green">
-        <div class="feature-icon">📚</div>
         <div>
           <h3>Contenus Structures</h3>
           <p>Classes par theme et niveau</p>
@@ -56,7 +55,6 @@
       </article>
 
       <article class="feature-card purple">
-        <div class="feature-icon">⚡</div>
         <div>
           <h3>Acces Rapide</h3>
           <p>Recherche instantanee et intuitive</p>
@@ -119,6 +117,7 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   gap: 0;
+  background-color: #f9fafb;
   min-height: 100vh;
 }
 
@@ -126,7 +125,7 @@ onMounted(async () => {
   position: relative;
   overflow: hidden;
   min-height: 500px;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+  background: linear-gradient(135deg, #470140 0%, #e4e1ea 50%, #d3b2ca 100%);
   padding: 60px 20px 80px;
 }
 
@@ -185,29 +184,6 @@ onMounted(async () => {
   box-shadow: 0 30px 60px rgba(99, 102, 241, 0.2);
 }
 
-.profile-icon {
-  width: 50px;
-  height: 50px;
-  border-radius: 12px;
-  display: grid;
-  place-items: center;
-  font-size: 28px;
-  margin-bottom: 16px;
-  transition: transform 0.3s ease;
-}
-
-.profile-card:hover .profile-icon {
-  transform: scale(1.1);
-}
-
-.profile-icon.blue {
-  background: linear-gradient(135deg, #3b82f6, #60a5fa);
-}
-
-.profile-icon.purple {
-  background: linear-gradient(135deg, #9333ea, #c084fc);
-}
-
 .profile-card h2 {
   margin: 0 0 12px;
   color: #1f2937;
@@ -248,18 +224,36 @@ onMounted(async () => {
   display: inline-block;
   margin-top: 16px;
   padding: 12px 28px;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  background: linear-gradient(135deg, #dcc5ff 0%, #ecd9ff 100%);
   color: white;
   border-radius: 8px;
   text-decoration: none;
   font-weight: 600;
   transition: all 0.3s ease;
-  border: 2px solid transparent;
+  border: 2px solid #cfadff;
+}
+
+.profile-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
 }
 
 .profile-link:hover {
   transform: translateX(4px);
-  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 8px 20px rgba(177, 136, 232, 0.35);
+}
+
+.profile-link-secondary {
+  background: linear-gradient(135deg, #dcc5ff 0%, #ecd9ff 100%);
+  color: white;
+  border-color: #cfadff;
+}
+
+.profile-link-secondary:hover {
+  background: linear-gradient(135deg, #d4b8ff 0%, #e7d0ff 100%);
+  color: white;
 }
 
 .small-badge {
@@ -299,11 +293,6 @@ onMounted(async () => {
 .feature-card:hover {
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
   transform: translateY(-4px);
-}
-
-.feature-icon {
-  font-size: 32px;
-  min-width: 40px;
 }
 
 .feature-card h3 {
@@ -381,6 +370,141 @@ onMounted(async () => {
   padding: 60px 20px;
   color: #9ca3af;
   font-size: 1.1rem;
+}
+
+.small-badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #f3e8ff;
+  color: #9333ea;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.profile-card h2 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+}
+
+.profile-card p {
+  margin: 0 0 12px;
+  color: #64748b;
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.profile-card ul {
+  margin: 0 0 12px;
+  padding-left: 16px;
+  color: #4b5563;
+  font-size: 0.82rem;
+  line-height: 1.7;
+}
+
+.profile-link {
+  margin-top: 0;
+  color: white;
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.profile-actions .profile-link-secondary {
+  color: white;
+}
+
+.features-section {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.feature-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+}
+
+.feature-card.orange {
+  background: linear-gradient(135deg, #fff7ed, #ffffff);
+}
+
+.feature-card.green {
+  background: linear-gradient(135deg, #ecfeff, #ffffff);
+}
+
+.feature-card.purple {
+  background: linear-gradient(135deg, #faf5ff, #ffffff);
+}
+
+.feature-card h3 {
+  margin: 0 0 4px;
+  font-size: 0.95rem;
+}
+
+.feature-card p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.82rem;
+}
+
+.featured-section {
+  padding: 8px 0 0;
+}
+
+.section-header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.section-header h2 {
+  margin: 0 0 6px;
+  font-size: 1.9rem;
+  letter-spacing: -0.03em;
+}
+
+.section-header p {
+  margin: 0;
+  color: #64748b;
+}
+
+.see-all-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #334155;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.resource-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.empty-panel {
+  display: grid;
+  place-items: center;
+  min-height: 180px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
 }
 
 @media (max-width: 960px) {

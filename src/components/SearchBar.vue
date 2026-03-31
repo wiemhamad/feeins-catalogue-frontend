@@ -14,7 +14,7 @@
           autocomplete="off"
         />
         <button @click="performSearch" class="search-btn" :disabled="ressourceStore.loading">
-          <span class="search-icon">🔍</span>
+          Rechercher
         </button>
 
         <!-- Dropdown de suggestions -->
@@ -25,7 +25,6 @@
             class="suggestion-item"
             @click="selectSuggestion(ressource)"
           >
-            <div class="suggestion-icon">📄</div>
             <div class="suggestion-content">
               <div class="suggestion-title">{{ ressource.titre }}</div>
               <div class="suggestion-subtitle">{{ ressource.thematique?.nom || 'Sans thématique' }}</div>
@@ -150,9 +149,9 @@ const performSearch = async () => {
 
 .search-btn {
   padding: 12px 24px;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  background: linear-gradient(135deg, #dcc5ff 0%, #ecd9ff 100%);
   color: white;
-  border: none;
+  border: 1px solid #cfadff;
   border-radius: 8px;
   cursor: pointer;
   font-size: 18px;
@@ -160,20 +159,18 @@ const performSearch = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
+  font-weight: 600;
 }
 
 .search-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+  background: linear-gradient(135deg, #d4b8ff 0%, #e7d0ff 100%);
+  box-shadow: 0 4px 12px rgba(177, 136, 232, 0.35);
 }
 
 .search-btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
-}
-
-.search-icon {
-  font-size: 20px;
 }
 
 .search-hint {
@@ -217,11 +214,6 @@ const performSearch = async () => {
   cursor: default;
   color: #999;
   justify-content: center;
-}
-
-.suggestion-icon {
-  font-size: 20px;
-  flex-shrink: 0;
 }
 
 .suggestion-content {

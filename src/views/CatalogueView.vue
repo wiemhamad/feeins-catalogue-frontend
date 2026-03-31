@@ -23,7 +23,7 @@
         </div>
 
         <div class="sidebar-block">
-          <h3>📚 Niveau</h3>
+          <h3>Niveau</h3>
           <div class="filter-group">
             <button
               v-for="niveau in niveauxFiltres"
@@ -40,7 +40,7 @@
         </div>
 
         <div class="sidebar-block">
-          <h3>🎥 Type de contenu</h3>
+          <h3>Type de contenu</h3>
           <div class="filter-group">
             <button
               v-for="type in typesFiltres"
@@ -71,7 +71,7 @@
                 v-model="keyword"
                 type="text"
                 class="search-input"
-                placeholder="🔍 Rechercher une ressource..."
+                placeholder="Rechercher une ressource..."
                 @input="onSearch"
               />
             </div>
@@ -109,7 +109,6 @@
             Chargement du catalogue...
           </div>
           <div v-else-if="ressources.length === 0" class="state-panel empty">
-            <div class="empty-icon">📭</div>
             <h3>Aucune ressource trouvée</h3>
             <p>Essayez de modifier vos filtres ou votre recherche</p>
           </div>
@@ -645,11 +644,6 @@ const appliquerTriLocal = () => {
 
 .state-panel.empty {
   flex-direction: column;
-}
-
-.empty-icon {
-  font-size: 3rem;
-  margin-bottom: 16px;
 }
 
 .state-panel h3 {

@@ -1,13 +1,11 @@
 <template>
   
 
-      <router-link to="/quiz"> Quiz</router-link>
-        
-    
-
   <div class="app-shell">
     <header class="site-header">
       <nav class="site-nav">
+
+        <!-- Brand -->
         <RouterLink to="/" class="brand">
           <span class="brand-mark">F</span>
           <span class="brand-text">
@@ -15,14 +13,16 @@
             <small>Catalogue de ressources</small>
           </span>
         </RouterLink>
->>>>>>> dca4e09a648f1ff3a40715c2a0a0e2f68ff4ad1e
 
+
+        <!-- Links -->
         <div class="nav-links">
           <RouterLink to="/">Accueil</RouterLink>
           <RouterLink to="/catalogue">Catalogue</RouterLink>
           <RouterLink to="/quiz">Quiz</RouterLink>
           <RouterLink to="/login">Connexion</RouterLink>
         </div>
+
       </nav>
     </header>
 
@@ -64,22 +64,23 @@ body {
 
 a {
   color: inherit;
+  text-decoration: none;
 }
 
-#app,
-.app-shell {
+#app {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
+/* HEADER */
 .site-header {
   position: sticky;
   top: 0;
   z-index: 20;
-  background: var(--gradient);
-  padding: 12px 20px;
-  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.15);
+  padding: 16px 20px 0;
+  background: linear-gradient(180deg, rgba(244, 247, 251, 0.96), rgba(244, 247, 251, 0.82));
+  backdrop-filter: blur(6px);
 }
 
 .site-nav {
@@ -92,16 +93,12 @@ a {
   padding: 8px 0;
 }
 
+/* BRAND */
 .brand {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 12px;
   text-decoration: none;
-  transition: transform 0.3s ease;
-}
-
-.brand:hover {
-  transform: scale(1.05);
 }
 
 .brand-mark {
@@ -113,8 +110,7 @@ a {
   background: rgba(255, 255, 255, 0.25);
   color: white;
   font-weight: 800;
-  font-size: 1.1rem;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  font-size: 1rem;
 }
 
 .brand-text {
@@ -136,6 +132,7 @@ a {
   letter-spacing: 0.5px;
 }
 
+/* NAV LINKS */
 .nav-links {
   display: flex;
   align-items: center;
@@ -144,10 +141,10 @@ a {
 }
 
 .nav-links a {
-  padding: 8px 14px;
-  border-radius: 8px;
+  padding: 10px 14px;
+  border-radius: 999px;
   text-decoration: none;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--muted);
   font-weight: 600;
   font-size: 0.9rem;
   transition: all 0.3s ease;
@@ -164,15 +161,17 @@ a {
   color: white;
 }
 
+/* MAIN */
 .app-main {
   flex: 1;
   padding: 0;
 }
 
+/* RESPONSIVE */
 @media (max-width: 760px) {
   .site-nav {
-    align-items: flex-start;
     flex-direction: column;
+    align-items: flex-start;
   }
 
   .nav-links {

@@ -1,73 +1,117 @@
 <template>
   <div class="catalogue-page">
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="space-background">
+        <div class="glow glow-left"></div>
+        <div class="glow glow-right"></div>
+      </div>
+      <div class="hero-content">
+        <h1>Explorer le Catalogue</h1>
+        <p>Découvrez plus de {{ total }} ressources pédagogiques pour enrichir vos cours</p>
+      </div>
+    </section>
+
+    <!-- Main Content -->
     <section class="catalogue-layout">
       <aside class="sidebar">
-        <div class="sidebar-block">
-          <div class="sidebar-title">Filtres</div>
-        </div>
-
-        <div class="sidebar-block">
-          <h2>Niveau</h2>
-          <button
-            v-for="niveau in niveauxFiltres"
-            :key="String(niveau.value)"
-            type="button"
-            class="filter-link"
-            :class="{ active: filtres.niveauId === niveau.value }"
-            @click="setFiltre('niveauId', niveau.value)"
-          >
-            {{ niveau.label }}
+        <div class="sidebar-header">
+          <h2>Filtres</h2>
+          <button v-if="hasActiveFilters" type="button" class="clear-all-btn" @click="resetFiltres">
+            ✕ Réinitialiser
           </button>
         </div>
 
         <div class="sidebar-block">
-          <h2>Type de contenu</h2>
-          <button
-            v-for="type in typesFiltres"
-            :key="String(type.value)"
-            type="button"
-            class="filter-link"
-            :class="{ active: filtres.typeSupport === type.value }"
-            @click="setFiltre('typeSupport', type.value)"
-          >
-            {{ type.label }}
-          </button>
+          <h3>📚 Niveau</h3>
+          <div class="filter-group">
+            <button
+              v-for="niveau in niveauxFiltres"
+              :key="String(niveau.value)"
+              type="button"
+              class="filter-checkbox"
+              :class="{ active: filtres.niveauId === niveau.value }"
+              @click="setFiltre('niveauId', niveau.value)"
+            >
+              <span class="checkbox"></span>
+              {{ niveau.label }}
+            </button>
+          </div>
         </div>
 
-        <button type="button" class="reset-button" @click="resetFiltres">
-          Reinitialiser
-        </button>
+        <div class="sidebar-block">
+          <h3>🎥 Type de contenu</h3>
+          <div class="filter-group">
+            <button
+              v-for="type in typesFiltres"
+              :key="String(type.value)"
+              type="button"
+              class="filter-checkbox"
+              :class="{ active: filtres.typeSupport === type.value }"
+              @click="setFiltre('typeSupport', type.value)"
+            >
+              <span class="checkbox"></span>
+              {{ type.label }}
+            </button>
+          </div>
+        </div>
       </aside>
 
       <section class="catalogue-content">
+        <!-- Toolbar -->
         <div class="catalogue-toolbar">
-          <div>
-            <h1>Catalogue ({{ total }})</h1>
+          <div class="toolbar-left">
+            <h2>Ressources</h2>
+            <span class="resource-count">{{ total }} résultats</span>
           </div>
 
-          <div class="toolbar-actions">
-            <input
-              v-model="keyword"
-              type="text"
-              class="search-input"
-              placeholder="Rechercher..."
-              @input="onSearch"
-            />
+          <div class="toolbar-right">
+            <div class="search-wrapper">
+              <input
+                v-model="keyword"
+                type="text"
+                class="search-input"
+                placeholder="🔍 Rechercher une ressource..."
+                @input="onSearch"
+              />
+            </div>
 
             <select v-model="tri" class="sort-select" @change="appliquerTriLocal">
               <option value="pertinence">Pertinence</option>
-              <option value="recent">Plus recent</option>
-              <option value="duree">Duree</option>
+              <option value="recent">Plus récent</option>
+              <option value="duree">Durée</option>
             </select>
           </div>
         </div>
 
+        <!-- Active Filters Display -->
+        <div v-if="hasActiveFilters" class="active-filters">
+          <div class="filter-tag" v-if="filtres.niveauId">
+            Niveau: <strong>{{ getActiveNiveauLabel }}</strong>
+            <button @click="setFiltre('niveauId', null)" class="tag-remove">✕</button>
+          </div>
+          <div class="filter-tag" v-if="filtres.typeSupport">
+            Type: <strong>{{ getActivetypeLabel }}</strong>
+            <button @click="setFiltre('typeSupport', null)" class="tag-remove">✕</button>
+          </div>
+          <div class="filter-tag" v-if="keyword">
+            Mot-clé: <strong>"{{ keyword }}"</strong>
+            <button @click="keyword = ''; charger()" class="tag-remove">✕</button>
+          </div>
+        </div>
+
+        <!-- Resource Grid -->
         <div class="cards-shell">
           <div class="cards-space"></div>
 
-          <div v-if="loading" class="state-panel">Chargement du catalogue...</div>
-          <div v-else-if="ressources.length === 0" class="state-panel">
-            Aucune ressource ne correspond aux filtres actuels.
+          <div v-if="loading" class="state-panel loading">
+            <div class="loader"></div>
+            Chargement du catalogue...
+          </div>
+          <div v-else-if="ressources.length === 0" class="state-panel empty">
+            <div class="empty-icon">📭</div>
+            <h3>Aucune ressource trouvée</h3>
+            <p>Essayez de modifier vos filtres ou votre recherche</p>
           </div>
 
           <div v-else class="resource-grid">
@@ -75,33 +119,12 @@
               v-for="ressource in ressources"
               :key="ressource.id"
               :ressource="ressource"
-              action-label="Voir la ressource"
+              action-label="Consulter"
             />
           </div>
         </div>
       </section>
     </section>
-
-    <footer class="page-footer">
-      <div class="footer-column">
-        <h3>FEEINS</h3>
-        <p>Former des Enseignants et des Etudiants Ingenieurs au Numerique en Sante.</p>
-      </div>
-      <div class="footer-column">
-        <h3>Liens Utiles</h3>
-        <a href="#">A propos</a>
-        <a href="#">Contact</a>
-        <a href="#">Mentions legales</a>
-      </div>
-      <div class="footer-column">
-        <h3>Partenaires</h3>
-        <div class="partners">
-          <span>UC</span>
-          <span>unit</span>
-          <span>ISIS</span>
-        </div>
-      </div>
-    </footer>
   </div>
 </template>
 
@@ -139,6 +162,22 @@ const typesFiltres = [
 ]
 
 const total = computed(() => ressources.value.length)
+
+const hasActiveFilters = computed(() => {
+  return filtres.value.niveauId !== null || 
+         filtres.value.typeSupport !== null || 
+         keyword.value.trim() !== ''
+})
+
+const getActiveNiveauLabel = computed(() => {
+  const niveau = niveaux.value.find(n => n.id === filtres.value.niveauId)
+  return niveau?.nom || ''
+})
+
+const getActivetypeLabel = computed(() => {
+  const type = typesFiltres.find(t => t.value === filtres.value.typeSupport)
+  return type?.label || ''
+})
 
 const chargerNiveaux = async () => {
   try {
@@ -222,112 +261,337 @@ const appliquerTriLocal = () => {
 
 <style scoped>
 .catalogue-page {
-  max-width: 1180px;
-  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
-.catalogue-layout {
+/* Hero Section */
+.hero-section {
+  position: relative;
+  overflow: hidden;
+  min-height: 300px;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+  padding: 80px 20px;
   display: grid;
-  grid-template-columns: 220px minmax(0, 1fr);
-  gap: 18px;
+  place-items: center;
+  text-align: center;
+  color: white;
 }
 
-.sidebar,
-.catalogue-content,
-.page-footer {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
+.space-background {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.15), transparent 25%),
+    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1), transparent 25%);
 }
 
-.sidebar {
-  padding: 18px;
-  height: fit-content;
+.glow {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.3;
 }
 
-.sidebar-title {
-  font-size: 0.95rem;
+.glow-left {
+  left: -100px;
+  top: 50px;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.glow-right {
+  right: -50px;
+  bottom: 100px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-content h1 {
+  margin: 0 0 16px;
+  font-size: 2.5rem;
   font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
-.sidebar-block + .sidebar-block {
-  margin-top: 18px;
+.hero-content p {
+  margin: 0;
+  font-size: 1.1rem;
+  opacity: 0.95;
 }
 
-.sidebar-block h2 {
-  margin: 0 0 10px;
-  font-size: 0.82rem;
-  text-transform: uppercase;
-  color: #475569;
-}
-
-.filter-link {
-  display: block;
+/* Main Layout */
+.catalogue-layout {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 40px 20px;
   width: 100%;
-  padding: 8px 0;
-  border: none;
-  background: transparent;
-  text-align: left;
-  color: #64748b;
-  cursor: pointer;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 28px;
 }
 
-.filter-link.active {
-  color: #0f766e;
+/* Sidebar */
+.sidebar {
+  position: sticky;
+  top: 80px;
+  height: fit-content;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #f3f4f6;
+}
+
+.sidebar-header h2 {
+  margin: 0;
+  font-size: 1.1rem;
   font-weight: 700;
+  color: #1f2937;
 }
 
-.reset-button {
-  width: 100%;
-  min-height: 40px;
-  margin-top: 8px;
-  border: 1px solid #d1d5db;
-  border-radius: 10px;
-  background: #f8fafc;
+.clear-all-btn {
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  background: #fee2e2;
+  color: #dc2626;
+  border: none;
+  border-radius: 6px;
   cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
 }
 
+.clear-all-btn:hover {
+  background: #fecaca;
+}
+
+.sidebar-block {
+  margin-bottom: 20px;
+}
+
+.sidebar-block h3 {
+  margin: 0 0 12px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #374151;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filter-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #6b7280;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.filter-checkbox:hover {
+  background: #f9fafb;
+  color: #374151;
+}
+
+.filter-checkbox.active {
+  background: linear-gradient(135deg, #dbeafe, #e9d5ff);
+  color: #6366f1;
+  font-weight: 600;
+  border-color: #6366f1;
+}
+
+.checkbox {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #d1d5db;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.filter-checkbox.active .checkbox {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border-color: #6366f1;
+  color: white;
+  font-size: 12px;
+}
+
+.filter-checkbox.active .checkbox::after {
+  content: '✓';
+}
+
+/* Content Section */
 .catalogue-content {
-  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .catalogue-toolbar {
   display: flex;
   justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 14px;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
 }
 
-.catalogue-toolbar h1 {
-  margin: 0;
-  font-size: 1.7rem;
-}
-
-.toolbar-actions {
+.toolbar-left {
   display: flex;
-  gap: 10px;
+  align-items: center;
+  gap: 12px;
 }
 
-.search-input,
-.sort-select {
-  min-height: 38px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background: #ffffff;
-  padding: 0 12px;
-  color: #334155;
+.toolbar-left h2 {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #1f2937;
 }
 
-.search-input {
+.resource-count {
+  padding: 6px 12px;
+  background: #f3f4f6;
+  color: #6b7280;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.toolbar-right {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.search-wrapper {
+  position: relative;
+  flex: 1;
   min-width: 220px;
 }
 
+.search-input {
+  width: 100%;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: white;
+  color: #1f2937;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.sort-select {
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: white;
+  color: #1f2937;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sort-select:hover {
+  border-color: #d1d5db;
+}
+
+.sort-select:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* Active Filters */
+.active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px;
+  background: #f0f9ff;
+  border-radius: 10px;
+  border-left: 4px solid #0ea5e9;
+}
+
+.filter-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: white;
+  border: 1px solid #bae6fd;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  color: #0369a1;
+}
+
+.filter-tag strong {
+  font-weight: 700;
+}
+
+.tag-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: none;
+  background: transparent;
+  color: #0ea5e9;
+  cursor: pointer;
+  padding: 0;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+.tag-remove:hover {
+  color: #0369a1;
+  scale: 1.2;
+}
+
+/* Cards Shell */
 .cards-shell {
   position: relative;
   overflow: hidden;
-  padding: 14px;
+  padding: 20px;
   border-radius: 14px;
   background: linear-gradient(135deg, #3b0764, #312e81 55%, #1d4ed8);
+  min-height: 200px;
 }
 
 .cards-space {
@@ -346,72 +610,144 @@ const appliquerTriLocal = () => {
 
 .resource-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 18px;
 }
 
 .state-panel {
   display: grid;
   place-items: center;
-  min-height: 240px;
+  min-height: 260px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.92);
-  color: #64748b;
+  background: rgba(255, 255, 255, 0.95);
+  color: #6b7280;
+  text-align: center;
+  padding: 40px 20px;
 }
 
-.page-footer {
-  margin-top: 18px;
-  padding: 24px;
-  display: grid;
-  grid-template-columns: 1.3fr 1fr 1fr;
-  gap: 24px;
+.state-panel.loading {
+  font-weight: 500;
 }
 
-.footer-column h3 {
-  margin: 0 0 10px;
-  font-size: 0.92rem;
+.loader {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #6366f1;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 16px;
 }
 
-.footer-column p,
-.footer-column a {
-  display: block;
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.state-panel.empty {
+  flex-direction: column;
+}
+
+.empty-icon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+}
+
+.state-panel h3 {
   margin: 0 0 8px;
-  color: #64748b;
-  text-decoration: none;
+  color: #1f2937;
+  font-size: 1.2rem;
 }
 
-.partners {
-  display: flex;
-  gap: 12px;
+.state-panel p {
+  margin: 0;
+  color: #9ca3af;
+  font-size: 0.95rem;
 }
 
-.partners span {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 54px;
-  height: 28px;
-  border-radius: 8px;
-  background: #f1f5f9;
-  color: #475569;
-  font-weight: 700;
-}
-
-@media (max-width: 960px) {
-  .catalogue-layout,
-  .resource-grid,
-  .page-footer {
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .catalogue-layout {
     grid-template-columns: 1fr;
   }
 
-  .catalogue-toolbar,
-  .toolbar-actions {
+  .sidebar {
+    position: static;
+  }
+
+  .hero-content h1 {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .catalogue-layout {
+    padding: 24px 16px;
+    gap: 20px;
+  }
+
+  .catalogue-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .toolbar-right {
     flex-direction: column;
   }
 
-  .search-input {
-    min-width: 0;
+  .search-wrapper,
+  .sort-select {
     width: 100%;
+  }
+
+  .resource-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 12px;
+  }
+
+  .hero-section {
+    min-height: 240px;
+    padding: 60px 20px;
+  }
+
+  .hero-content h1 {
+    font-size: 1.5rem;
+  }
+
+  .hero-content p {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .catalogue-layout {
+    padding: 16px;
+  }
+
+  .toolbar-left h2 {
+    font-size: 1.3rem;
+  }
+
+  .resource-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar-block h3 {
+    font-size: 0.85rem;
+  }
+
+  .filter-checkbox {
+    font-size: 0.8rem;
+    padding: 8px 10px;
+  }
+
+  .active-filters {
+    gap: 6px;
+    padding: 10px;
+  }
+
+  .filter-tag {
+    font-size: 0.75rem;
+    padding: 4px 10px;
   }
 }
 </style>

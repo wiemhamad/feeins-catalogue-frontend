@@ -1,11 +1,10 @@
 <template>
   
-<<<<<<< HEAD
+
       <router-link to="/quiz"> Quiz</router-link>
         
-      </div>
-    </nav>
-=======
+    
+
   <div class="app-shell">
     <header class="site-header">
       <nav class="site-nav">

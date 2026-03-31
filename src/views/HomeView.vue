@@ -6,6 +6,9 @@
         <div class="glow glow-right"></div>
       </div>
 
+      <!-- Barre de recherche -->
+      <SearchBar />
+
       <div class="hero-cards">
         <article class="profile-card">
           <div class="profile-icon blue">🎓</div>
@@ -94,6 +97,7 @@
 import { onMounted, ref } from 'vue'
 import api from '@/api/axios'
 import RessourceCard from '@/components/RessourceCard.vue'
+import SearchBar from '@/components/SearchBar.vue'
 
 const loading = ref(true)
 const ressourcesVedette = ref([])
@@ -112,79 +116,88 @@ onMounted(async () => {
 
 <style scoped>
 .home-page {
-  max-width: 1180px;
-  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 0;
+  min-height: 100vh;
 }
 
 .hero-section {
   position: relative;
   overflow: hidden;
-  min-height: 350px;
-  border-radius: 18px;
-  background: linear-gradient(135deg, #111827, #1e1b4b 55%, #3b0764 100%);
-  border: 1px solid #dbe4f0;
+  min-height: 500px;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+  padding: 60px 20px 80px;
 }
 
 .space-background {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 12% 54%, rgba(59, 130, 246, 0.55), transparent 18%),
-    radial-gradient(circle at 84% 62%, rgba(249, 115, 22, 0.5), transparent 18%),
-    radial-gradient(circle at 50% 100%, rgba(168, 85, 247, 0.28), transparent 24%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0));
+    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.15), transparent 25%),
+    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1), transparent 25%);
 }
 
 .glow {
   position: absolute;
-  width: 220px;
-  height: 220px;
+  width: 300px;
+  height: 300px;
   border-radius: 50%;
-  filter: blur(36px);
+  filter: blur(60px);
+  opacity: 0.3;
 }
 
 .glow-left {
-  left: 30px;
-  bottom: 20px;
-  background: rgba(59, 130, 246, 0.34);
+  left: -100px;
+  top: 50px;
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .glow-right {
-  right: 30px;
-  bottom: 10px;
-  background: rgba(249, 115, 22, 0.3);
+  right: -50px;
+  bottom: 100px;
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .hero-cards {
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 28px;
-  max-width: 930px;
-  margin: 62px auto 0;
-  padding: 0 24px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 20px;
 }
 
 .profile-card {
   position: relative;
-  padding: 22px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.96);
-  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.24);
+  padding: 32px;
+  border-radius: 16px;
+  background: white;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  transition: all 0.4s ease;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.profile-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 30px 60px rgba(99, 102, 241, 0.2);
 }
 
 .profile-icon {
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
   display: grid;
   place-items: center;
-  color: #fff;
-  margin-bottom: 14px;
+  font-size: 28px;
+  margin-bottom: 16px;
+  transition: transform 0.3s ease;
+}
+
+.profile-card:hover .profile-icon {
+  transform: scale(1.1);
 }
 
 .profile-icon.blue {
@@ -195,144 +208,179 @@ onMounted(async () => {
   background: linear-gradient(135deg, #9333ea, #c084fc);
 }
 
+.profile-card h2 {
+  margin: 0 0 12px;
+  color: #1f2937;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.profile-card p {
+  margin: 0 0 16px;
+  color: #6b7280;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.profile-card ul {
+  list-style: none;
+  margin: 16px 0;
+  padding: 0;
+}
+
+.profile-card ul li {
+  margin-bottom: 8px;
+  color: #6b7280;
+  font-size: 0.9rem;
+  padding-left: 20px;
+  position: relative;
+}
+
+.profile-card ul li:before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #6366f1;
+  font-weight: bold;
+}
+
+.profile-link {
+  display: inline-block;
+  margin-top: 16px;
+  padding: 12px 28px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.profile-link:hover {
+  transform: translateX(4px);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+}
+
 .small-badge {
   position: absolute;
   top: 16px;
   right: 16px;
-  padding: 3px 8px;
-  border-radius: 999px;
-  background: #f3e8ff;
-  color: #9333ea;
-  font-size: 0.68rem;
-  font-weight: 700;
-}
-
-.profile-card h2 {
-  margin: 0 0 8px;
-  font-size: 1rem;
-}
-
-.profile-card p {
-  margin: 0 0 12px;
-  color: #64748b;
-  font-size: 0.84rem;
-  line-height: 1.5;
-}
-
-.profile-card ul {
-  margin: 0 0 12px;
-  padding-left: 16px;
-  color: #4b5563;
-  font-size: 0.82rem;
-  line-height: 1.7;
-}
-
-.profile-link {
-  color: #0f766e;
-  text-decoration: none;
-  font-size: 0.82rem;
-  font-weight: 700;
+  background: linear-gradient(135deg, #ec4899, #f43f5e);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
 .features-section {
+  max-width: 1180px;
+  margin: 60px auto 0;
+  padding: 0 20px;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
 }
 
 .feature-card {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 18px;
+  padding: 24px;
   border-radius: 12px;
+  background: white;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
   border: 1px solid #e5e7eb;
-  background: #ffffff;
 }
 
-.feature-card.orange {
-  background: linear-gradient(135deg, #fff7ed, #ffffff);
-}
-
-.feature-card.green {
-  background: linear-gradient(135deg, #ecfeff, #ffffff);
-}
-
-.feature-card.purple {
-  background: linear-gradient(135deg, #faf5ff, #ffffff);
+.feature-card:hover {
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
 }
 
 .feature-icon {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  display: grid;
-  place-items: center;
-  background: #ffffff;
-  box-shadow: inset 0 0 0 1px #e5e7eb;
+  font-size: 32px;
+  min-width: 40px;
 }
 
 .feature-card h3 {
-  margin: 0 0 4px;
-  font-size: 0.95rem;
+  margin: 0 0 6px;
+  color: #1f2937;
+  font-size: 1.1rem;
+  font-weight: 700;
 }
 
 .feature-card p {
   margin: 0;
-  color: #64748b;
-  font-size: 0.82rem;
+  color: #6b7280;
+  font-size: 0.9rem;
+  line-height: 1.4;
 }
 
 .featured-section {
-  padding: 8px 0 0;
+  max-width: 1180px;
+  margin: 60px auto;
+  padding: 0 20px;
+  margin-bottom: 40px;
 }
 
 .section-header {
   display: flex;
-  align-items: end;
   justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 18px;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 40px;
 }
 
 .section-header h2 {
-  margin: 0 0 6px;
-  font-size: 1.9rem;
-  letter-spacing: -0.03em;
+  margin: 0;
+  color: #1f2937;
+  font-size: 2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .section-header p {
   margin: 0;
-  color: #64748b;
+  color: #6b7280;
+  font-size: 1rem;
 }
 
 .see-all-link {
-  display: inline-flex;
-  align-items: center;
-  min-height: 40px;
-  padding: 0 14px;
-  border: 1px solid #e2e8f0;
-  border-radius: 999px;
-  background: #ffffff;
-  color: #334155;
+  padding: 12px 28px;
+  background: white;
+  color: #6366f1;
+  border: 2px solid #6366f1;
+  border-radius: 8px;
   text-decoration: none;
   font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.see-all-link:hover {
+  background: #6366f1;
+  color: white;
+  transform: translateX(4px);
 }
 
 .resource-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
 }
 
 .empty-panel {
-  display: grid;
-  place-items: center;
-  min-height: 180px;
-  border-radius: 16px;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  color: #64748b;
+  text-align: center;
+  padding: 60px 20px;
+  color: #9ca3af;
+  font-size: 1.1rem;
 }
 
 @media (max-width: 960px) {

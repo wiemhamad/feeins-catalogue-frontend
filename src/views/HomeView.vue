@@ -6,6 +6,25 @@
         <div class="glow glow-right"></div>
       </div>
 
+      <!-- Barre de recherche centrale -->
+      <div class="search-section">
+        <div class="search-container">
+          <div class="search-input-wrapper">
+            <input
+              v-model="searchQuery"
+              @keyup.enter="performSearch"
+              type="text"
+              placeholder="Rechercher des ressources pédagogiques..."
+              class="search-input"
+            />
+            <button @click="performSearch" class="search-btn">
+              <span class="search-icon">🔍</span>
+            </button>
+          </div>
+          <p class="search-hint">Tapez un mot-clé, un thème ou un format (vidéo, quiz, PDF...)</p>
+        </div>
+      </div>
+
       <div class="hero-cards">
         <article class="profile-card">
           <div class="profile-icon blue">🎓</div>
@@ -95,6 +114,7 @@ import { onMounted, ref } from 'vue'
 import api from '@/api/axios'
 import RessourceCard from '@/components/RessourceCard.vue'
 
+
 const loading = ref(true)
 const ressourcesVedette = ref([])
 
@@ -108,6 +128,15 @@ onMounted(async () => {
     loading.value = false
   }
 })
+
+const performSearch = () => {
+  if (searchQuery.value.trim()) {
+    router.push({
+      path: '/catalogue',
+      query: { q: searchQuery.value.trim() }
+    })
+  }
+}
 </script>
 
 <style scoped>

@@ -1,4 +1,5 @@
 <template>
+  
   <div class="app-shell">
     <header class="site-header">
       <nav class="site-nav">
@@ -22,8 +23,13 @@
     <main class="app-main">
       <RouterView />
     </main>
+    <AppFooter />
   </div>
 </template>
+
+<script setup>
+import AppFooter from './components/AppFooter.vue'
+</script>
 
 <style>
 :root {

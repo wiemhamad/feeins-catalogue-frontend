@@ -19,6 +19,12 @@
           <RouterLink to="/catalogue">Catalogue</RouterLink>
           <RouterLink to="/quiz">Quiz</RouterLink>
           <RouterLink to="/login">Connexion</RouterLink>
+          <router-link
+  v-if="isConnecte && (user.role === 'ENSEIGNANT' || user.role === 'ADMINISTRATEUR_PEDAGOGIQUE')"
+  to="/creer"
+>
+   Créer
+</router-link>
         </div>
 
       </nav>

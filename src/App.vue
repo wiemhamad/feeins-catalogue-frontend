@@ -17,12 +17,22 @@
           <RouterLink to="/">Accueil</RouterLink>
           <RouterLink to="/catalogue">Catalogue</RouterLink>
           <RouterLink to="/quiz">Quiz</RouterLink>
+<<<<<<< HEAD
           <RouterLink v-if="authStore.canCreate" to="/createur/ressources">Espace createur</RouterLink>
           <RouterLink v-if="authStore.isAdmin" to="/admin">Admin</RouterLink>
           <RouterLink v-if="!authStore.isLoggedIn" to="/login">Connexion</RouterLink>
           <button v-else type="button" class="nav-user-btn" @click="logout">
             {{ authStore.userDisplayName }} | Deconnexion
           </button>
+=======
+          <RouterLink to="/login">Connexion</RouterLink>
+          <router-link
+  v-if="isConnecte && (user.role === 'ENSEIGNANT' || user.role === 'ADMINISTRATEUR_PEDAGOGIQUE')"
+  to="/creer"
+>
+   Créer
+</router-link>
+>>>>>>> 2b34acb2962f416c0b5b716020a590a3131af35e
         </div>
 
       </nav>

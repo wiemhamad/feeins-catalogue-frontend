@@ -66,6 +66,9 @@
           </div>
 
           <div class="toolbar-right">
+            <RouterLink v-if="authStore.canCreate" to="/createur/ressources" class="creator-link">
+              Ajouter une ressource
+            </RouterLink>
             <div class="search-wrapper">
               <input
                 v-model="keyword"
@@ -131,7 +134,9 @@
 import { computed, onMounted, ref } from 'vue'
 import api from '@/api/axios'
 import RessourceCard from '@/components/RessourceCard.vue'
+import { useAuthStore } from '@/stores/auth'
 
+const authStore = useAuthStore()
 const ressources = ref([])
 const niveaux = ref([])
 const loading = ref(true)
@@ -486,8 +491,23 @@ const appliquerTriLocal = () => {
 
 .toolbar-right {
   display: flex;
+  align-items: center;
   gap: 12px;
   flex-wrap: wrap;
+}
+
+.creator-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #0f766e, #0ea5e9);
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .search-wrapper {

@@ -141,8 +141,10 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/api/axios'
+import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
+const authStore = useAuthStore()
 const mode = ref('login')
 const loading = ref(false)
 const erreur = ref('')
@@ -186,13 +188,7 @@ const login = async () => {
     const data = response.data
 
     // Sauvegarder le token et les infos utilisateur
-    localStorage.setItem('token', data.token)
-    localStorage.setItem('user', JSON.stringify({
-      id: data.id,
-      nom: data.nom,
-      email: data.email,
-      role: data.typeUtilisateur
-    }))
+    authStore.setSession(data)
 
     succes.value = `Bienvenue ${data.nom} !`
 
@@ -200,6 +196,8 @@ const login = async () => {
     setTimeout(() => {
       if (data.typeUtilisateur === 'ADMINISTRATEUR_PEDAGOGIQUE') {
         router.push('/admin')
+      } else if (data.typeUtilisateur === 'ENSEIGNANT') {
+        router.push('/createur/ressources')
       } else {
         router.push('/catalogue')
       }
@@ -220,16 +218,18 @@ const register = async () => {
     const response = await api.post('/api/auth/register', registerForm.value)
     const data = response.data
 
-    localStorage.setItem('token', data.token)
-    localStorage.setItem('user', JSON.stringify({
-      id: data.id,
-      nom: data.nom,
-      email: data.email,
-      role: data.typeUtilisateur
-    }))
+    authStore.setSession(data)
 
     succes.value = `Compte créé avec succès ! Bienvenue ${data.nom}`
-    setTimeout(() => router.push('/catalogue'), 1000)
+    setTimeout(() => {
+      if (data.typeUtilisateur === 'ADMINISTRATEUR_PEDAGOGIQUE') {
+        router.push('/admin')
+      } else if (data.typeUtilisateur === 'ENSEIGNANT') {
+        router.push('/createur/ressources')
+      } else {
+        router.push('/catalogue')
+      }
+    }, 1000)
 
   } catch (err) {
     erreur.value = err.response?.data?.message || 'Erreur lors de l\'inscription'

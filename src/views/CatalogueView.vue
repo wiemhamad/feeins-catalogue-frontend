@@ -270,7 +270,7 @@ const appliquerTriLocal = () => {
   position: relative;
   overflow: hidden;
   min-height: 300px;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+  background: linear-gradient(135deg, #d4ff00ba 10%, #222240 50%, #120F34 100%);
   padding: 80px 20px;
   display: grid;
   place-items: center;
@@ -472,7 +472,7 @@ const appliquerTriLocal = () => {
   margin: 0;
   font-size: 1.6rem;
   font-weight: 800;
-  color: #1f2937;
+  color: #D4FF00;
 }
 
 .resource-count {

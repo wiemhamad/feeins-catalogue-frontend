@@ -13,19 +13,7 @@
           </span>
         </RouterLink>
 
-        <!-- Links -->
-        <div class="nav-links">
-          <RouterLink to="/">Accueil</RouterLink>
-          <RouterLink to="/catalogue">Catalogue</RouterLink>
-          <RouterLink to="/quiz">Quiz</RouterLink>
-          <RouterLink to="/login">Connexion</RouterLink>
-          <router-link
-  v-if="isConnecte && (user.role === 'ENSEIGNANT' || user.role === 'ADMINISTRATEUR_PEDAGOGIQUE')"
-  to="/creer"
->
-   Créer
-</router-link>
-        </div>
+   
 
       </nav>
     </header>
@@ -51,7 +39,7 @@ import AppFooter from './components/AppFooter.vue'
   --muted: #6b7280;
   --primary: #6366f1;
   --primary-soft: #eef2ff;
-  --gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  --gradient: #140F37;
 }
 
 * {
@@ -61,10 +49,11 @@ import AppFooter from './components/AppFooter.vue'
 body {
   margin: 0;
   min-width: 320px;
-  background: var(--app-bg);
+background: linear-gradient(135deg, #0b0f2a, #1f1147);
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
+
 
 a {
   color: inherit;
@@ -83,7 +72,7 @@ a {
   top: 0;
   z-index: 20;
   padding: 16px 20px 0;
-  background: linear-gradient(135deg, #1a0533 0%, #b471be 100%);
+  background: #140F37;
   backdrop-filter: blur(6px);
   box-shadow: 0 8px 24px rgba(255, 150, 190, 0.15);
 }
@@ -112,7 +101,7 @@ a {
   border-radius: 10px;
   display: grid;
   place-items: center;
-  background: rgba(255, 255, 255, 0.25);
+  background: #D4FF00;
   color: white;
   font-weight: 800;
   font-size: 1rem;

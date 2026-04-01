@@ -30,7 +30,7 @@
 <style scoped>
 .footer {
   width: 100%;
-  background: linear-gradient(135deg, #1a0533 0%, #b471be 100%);
+  background: linear-gradient(135deg,#d4ff0074 50%,#120F34 50%);
   border-top: none;
   padding: 40px 20px 20px;
   color: white;

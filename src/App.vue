@@ -1,5 +1,4 @@
 <template>
-  
   <div class="app-shell">
     <header class="site-header">
       <nav class="site-nav">
@@ -18,7 +17,12 @@
           <RouterLink to="/">Accueil</RouterLink>
           <RouterLink to="/catalogue">Catalogue</RouterLink>
           <RouterLink to="/quiz">Quiz</RouterLink>
-          <RouterLink to="/login">Connexion</RouterLink>
+          <RouterLink v-if="authStore.canCreate" to="/createur/ressources">Espace createur</RouterLink>
+          <RouterLink v-if="authStore.isAdmin" to="/admin">Admin</RouterLink>
+          <RouterLink v-if="!authStore.isLoggedIn" to="/login">Connexion</RouterLink>
+          <button v-else type="button" class="nav-user-btn" @click="logout">
+            {{ authStore.userDisplayName }} | Deconnexion
+          </button>
         </div>
 
       </nav>
@@ -32,7 +36,17 @@
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 import AppFooter from './components/AppFooter.vue'
+
+const router = useRouter()
+const authStore = useAuthStore()
+
+const logout = () => {
+  authStore.logout()
+  router.push('/login')
+}
 </script>
 
 <style>
@@ -139,18 +153,23 @@ a {
   gap: 6px;
 }
 
-.nav-links a {
+.nav-links a,
+.nav-user-btn {
   padding: 10px 14px;
   border-radius: 999px;
-  text-decoration: none;
   color: white;
   font-weight: 600;
   font-size: 0.9rem;
   transition: all 0.3s ease;
   background: rgba(255, 255, 255, 0.2);
+  border: none;
+  text-decoration: none;
+  cursor: pointer;
+  font-family: inherit;
 }
 
-.nav-links a:hover {
+.nav-links a:hover,
+.nav-user-btn:hover {
   background: rgba(255, 255, 255, 0.2);
   color: white;
   transform: translateY(-2px);

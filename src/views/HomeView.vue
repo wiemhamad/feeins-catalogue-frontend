@@ -34,7 +34,7 @@
             <li>Ajouter du contenu pedagogique</li>
             <li>Proposer des cours a vos eleves</li>
           </ul>
-          <RouterLink to="/login" class="profile-link">Se connecter</RouterLink>
+          <RouterLink :to="creatorLink" class="profile-link">{{ creatorCta }}</RouterLink>
         </article>
       </div>
     </section>
@@ -92,13 +92,17 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import api from '@/api/axios'
 import RessourceCard from '@/components/RessourceCard.vue'
 import SearchBar from '@/components/SearchBar.vue'
+import { useAuthStore } from '@/stores/auth'
 
+const authStore = useAuthStore()
 const loading = ref(true)
 const ressourcesVedette = ref([])
+const creatorLink = computed(() => (authStore.canCreate ? '/createur/ressources' : '/login'))
+const creatorCta = computed(() => (authStore.canCreate ? 'Acceder a mon espace createur' : 'Se connecter'))
 
 onMounted(async () => {
   try {

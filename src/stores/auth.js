@@ -16,9 +16,32 @@ export const useAuthStore = defineStore('auth', {
 
   getters: {
     isLoggedIn: (state) => Boolean(state.token && state.user),
+
+    // Rôles
     isAdmin: (state) => state.user?.role === 'ADMINISTRATEUR_PEDAGOGIQUE',
-    canCreate: (state) => state.user?.role === 'ENSEIGNANT',
-    userDisplayName: (state) => state.user?.nom || state.user?.email || 'Utilisateur'
+
+    // L'enseignant crée des TEMPLATES (pas des ressources)
+    isEnseignant: (state) => state.user?.role === 'ENSEIGNANT',
+
+    // Le contributeur (consultant pédagogique) CRÉE et PROPOSE des ressources
+    isContributeur: (state) => state.user?.role === 'CONTRIBUTEUR',
+
+    // Peut créer des ressources = CONTRIBUTEUR ou ADMIN
+    canCreateRessource: (state) =>
+      state.user?.role === 'CONTRIBUTEUR' ||
+      state.user?.role === 'ADMINISTRATEUR_PEDAGOGIQUE',
+
+    // Peut créer des templates = ENSEIGNANT ou ADMIN
+    canCreateTemplate: (state) =>
+      state.user?.role === 'ENSEIGNANT' ||
+      state.user?.role === 'ADMINISTRATEUR_PEDAGOGIQUE',
+
+    // Peut valider = ADMIN uniquement
+    canValider: (state) => state.user?.role === 'ADMINISTRATEUR_PEDAGOGIQUE',
+
+    userDisplayName: (state) => state.user?.nom || state.user?.email || 'Utilisateur',
+
+    userRole: (state) => state.user?.role || null
   },
 
   actions: {
@@ -34,7 +57,6 @@ export const useAuthStore = defineStore('auth', {
         email: data.email,
         role: data.typeUtilisateur
       }
-
       this.user = user
       this.token = data.token
       localStorage.setItem('token', data.token)

@@ -62,7 +62,7 @@
               <span v-if="r.thematiqueNom">📂 {{ r.thematiqueNom }}</span>
               <span v-if="r.dureeMinutes">⏱ {{ r.dureeMinutes }} min</span>
               <span v-if="r.difficulte">📊 {{ r.difficulte }}</span>
-              <span v-if="r.createurNom">👤 {{ r.createurNom }}</span>
+              <span v-if="r.contributeurNom">👤 {{ r.contributeurNom }}</span>
             </div>
             <div v-if="r.tags && r.tags.length" class="tags">
               <span v-for="tag in r.tags" :key="tag" class="tag">#{{ tag }}</span>
@@ -143,7 +143,7 @@
             <div class="meta">
               <span v-if="r.niveauNom">🎓 {{ r.niveauNom }}</span>
               <span v-if="r.thematiqueNom">📂 {{ r.thematiqueNom }}</span>
-              <span v-if="r.createurNom">👤 {{ r.createurNom }}</span>
+              <span v-if="r.contributeurNom">👤 {{ r.contributeurNom }}</span>
             </div>
           </div>
 
@@ -200,7 +200,7 @@ const toutesRessources = ref([])
 // Vérifier que l'utilisateur est admin
 onMounted(() => {
   const user = JSON.parse(localStorage.getItem('user') || '{}')
-  if (user.role !== 'ADMINISTRATEUR_PEDAGOGIQUE') {
+  if (!user || user.role !== 'ADMINISTRATEUR_PEDAGOGIQUE') {
     router.push('/login')
     return
   }

@@ -305,7 +305,7 @@ const form = ref({
 onMounted(async () => {
   // Vérifier que l'utilisateur est connecté et a le bon rôle
   const user = JSON.parse(localStorage.getItem('user') || '{}')
-  if (!user.role || (user.role !== 'ENSEIGNANT' && user.role !== 'ADMINISTRATEUR_PEDAGOGIQUE')) {
+  if (!user.role || (user.role !== 'CONTRIBUTEUR' && user.role !== 'ADMINISTRATEUR_PEDAGOGIQUE')) {
     router.push('/login')
     return
   }
@@ -357,7 +357,7 @@ const soumettre = async () => {
 
   } catch (err) {
     if (err.response?.status === 403) {
-      erreur.value = 'Accès refusé. Vous devez être enseignant ou administrateur.'
+      erreur.value = 'Accès refusé. Vous devez être contributeur ou administrateur.'
     } else {
       erreur.value = err.response?.data?.message || err.response?.data || 'Erreur lors de la création'
     }

@@ -17,7 +17,36 @@
           <RouterLink to="/">Accueil</RouterLink>
           <RouterLink to="/catalogue">Catalogue</RouterLink>
           <RouterLink to="/quiz">Quiz</RouterLink>
-          <RouterLink to="/login">Connexion</RouterLink>
+
+          <!-- CONTRIBUTEUR : accès à son espace de création de ressources -->
+          <RouterLink
+            v-if="authStore.canCreateRessource"
+            to="/contributeur/ressources"
+          >
+            ✏️ Mes ressources
+          </RouterLink>
+
+          <!-- ENSEIGNANT : accès à son espace de création de templates -->
+          <RouterLink
+            v-if="authStore.canCreateTemplate && !authStore.isAdmin"
+            to="/enseignant/templates"
+          >
+            📋 Mes templates
+          </RouterLink>
+
+          <!-- ADMIN : accès au dashboard -->
+          <RouterLink v-if="authStore.isAdmin" to="/admin">
+            👑 Admin
+          </RouterLink>
+
+          <!-- Si connecté : bouton utilisateur + déconnexion -->
+          <template v-if="authStore.isLoggedIn">
+            <span class="nav-user-chip">{{ authStore.userDisplayName }}</span>
+            <button class="nav-user-btn" @click="logout">Déconnexion</button>
+          </template>
+
+          <!-- Si non connecté -->
+          <RouterLink v-else to="/login">Connexion</RouterLink>
         </div>
 
       </nav>
@@ -31,7 +60,6 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import AppFooter from './components/AppFooter.vue'
@@ -39,13 +67,9 @@ import AppFooter from './components/AppFooter.vue'
 const router = useRouter()
 const authStore = useAuthStore()
 
-// ✅ isConnecte et user exposés pour le template
-const isConnecte = computed(() => authStore.isLoggedIn)
-const user = computed(() => authStore.user)
-
 const logout = () => {
   authStore.logout()
-  router.push('/login')
+  router.push('/')
 }
 </script>
 
@@ -62,23 +86,17 @@ const logout = () => {
   --gradient: #140F37;
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
   min-width: 320px;
-background: linear-gradient(135deg, #0b0f2a, #1f1147);
+  background: linear-gradient(135deg, #0b0f2a, #1f1147);
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
+a { color: inherit; text-decoration: none; }
 
 #app {
   min-height: 100vh;
@@ -116,11 +134,9 @@ a {
 }
 
 .brand-mark {
-  width: 40px;
-  height: 40px;
+  width: 40px; height: 40px;
   border-radius: 10px;
-  display: grid;
-  place-items: center;
+  display: grid; place-items: center;
   background: #D4FF00;
   color: white;
   font-weight: 800;
@@ -133,14 +149,9 @@ a {
   line-height: 1.05;
 }
 
-.brand-text strong {
-  font-size: 0.95rem;
-  color: white;
-  font-weight: 700;
-}
-
+.brand-text strong { font-size: 0.95rem; color: white; font-weight: 700; }
 .brand-text small {
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255,255,255,0.85);
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -162,41 +173,38 @@ a {
   font-weight: 600;
   font-size: 0.9rem;
   transition: all 0.3s ease;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255,255,255,0.12);
   border: none;
   text-decoration: none;
   cursor: pointer;
   font-family: inherit;
 }
 
-.nav-links a:hover,
-.nav-user-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
+.nav-links a:hover, .nav-user-btn:hover {
+  background: rgba(255,255,255,0.2);
   transform: translateY(-2px);
 }
 
 .nav-links a.router-link-active {
   background: linear-gradient(135deg, #dcc5ff 0%, #ecd9ff 100%);
   color: white;
-  box-shadow: 0 8px 20px rgba(177, 136, 232, 0.25);
+  box-shadow: 0 8px 20px rgba(177,136,232,0.25);
+}
+
+.nav-user-chip {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(212, 255, 0, 0.15);
+  color: #D4FF00;
+  font-size: 0.82rem;
+  font-weight: 600;
 }
 
 /* MAIN */
-.app-main {
-  flex: 1;
-  padding: 0;
-}
+.app-main { flex: 1; padding: 0; }
 
-/* RESPONSIVE */
 @media (max-width: 760px) {
-  .site-nav {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .nav-links {
-    width: 100%;
-  }
+  .site-nav { flex-direction: column; align-items: flex-start; }
+  .nav-links { width: 100%; }
 }
 </style>

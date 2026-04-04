@@ -1,7 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import CatalogueView from '@/views/CatalogueView.vue'
-import { useAuthStore } from '@/stores/auth'
-import { pinia } from '@/stores'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -11,11 +8,9 @@ const router = createRouter({
     { path: '/login', name: 'login', component: () => import('@/views/LoginView.vue') },
     { path: '/admin', name: 'admin', component: () => import('@/views/AdminView.vue') },
     { path: '/quiz', name: 'quiz', component: () => import('@/views/QuizPositionnement.vue') },
-    {
-      path: '/creer',
-      name: 'creer',
-      component: () => import('@/views/CreerRessourceView.vue')
-    }
+    { path: '/creer', name: 'creer', component: () => import('@/views/CreerRessourceView.vue') },
+    // ✅ Alias pour compatibilité avec CreatorResourcesView
+    { path: '/createur/ressources', name: 'createur', component: () => import('@/views/CreerRessourceView.vue') }
   ]
 })
 

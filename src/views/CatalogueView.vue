@@ -66,9 +66,7 @@
           </div>
 
           <div class="toolbar-right">
-            <RouterLink v-if="authStore.canCreate" to="/createur/ressources" class="creator-link">
-              Ajouter une ressource
-            </RouterLink>
+      
             <div class="search-wrapper">
               <input
                 v-model="keyword"

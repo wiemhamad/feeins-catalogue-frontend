@@ -18,12 +18,6 @@
           <RouterLink to="/catalogue">Catalogue</RouterLink>
           <RouterLink to="/quiz">Quiz</RouterLink>
           <RouterLink to="/login">Connexion</RouterLink>
-          <router-link
-  v-if="isConnecte && (user.role === 'ENSEIGNANT' || user.role === 'ADMINISTRATEUR_PEDAGOGIQUE')"
-  to="/creer"
->
-   Créer
-</router-link>
         </div>
 
       </nav>
@@ -37,12 +31,17 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import AppFooter from './components/AppFooter.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
+
+// ✅ isConnecte et user exposés pour le template
+const isConnecte = computed(() => authStore.isLoggedIn)
+const user = computed(() => authStore.user)
 
 const logout = () => {
   authStore.logout()

@@ -5,7 +5,7 @@
     <div class="page-header">
       <button @click="router.push('/')" class="btn-retour">← Retour</button>
       <div>
-        <h1>➕ Créer une ressource pédagogique</h1>
+        <h1> Créer une ressource pédagogique</h1>
         <p>La ressource sera soumise à validation avant publication</p>
       </div>
     </div>
@@ -407,10 +407,10 @@ const resetForm = () => {
 }
 .page-header h1 {
   font-size: 1.5rem;
-  color: var(--color-text-primary);
-  margin-bottom: 4px;
+  color: #4ddb34;
+  margin-bottom: 8px;
 }
-.page-header p { color: var(--color-text-secondary); font-size: 0.9rem; }
+.page-header p { color:#ffffff; font-size: 0.9rem; }
 
 .btn-retour {
   padding: 8px 16px;
@@ -419,7 +419,7 @@ const resetForm = () => {
   border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
-  color: var(--color-text-secondary);
+  color: #9dc010;
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -444,7 +444,7 @@ const resetForm = () => {
   background: var(--color-background-primary);
   border-radius: 16px;
   padding: 0;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 12px #D4FF00;
   overflow: hidden;
 }
 
@@ -457,12 +457,12 @@ const resetForm = () => {
 .section-titre {
   font-size: 1rem;
   font-weight: 500;
-  color: var(--color-text-primary);
+  color: #cbd5e1;
   margin-bottom: 18px;
 }
 .section-desc {
   font-size: 13px;
-  color: var(--color-text-secondary);
+  color: #3498db;
   margin-bottom: 15px;
   margin-top: -12px;
 }
@@ -487,7 +487,7 @@ const resetForm = () => {
 label {
   font-size: 13px;
   font-weight: 500;
-  color: var(--color-text-primary);
+  color: #ffffff;
 }
 label.required::after {
   content: ' *';
@@ -505,7 +505,7 @@ input, select, textarea {
   font-family: inherit;
 }
 input:focus, select:focus, textarea:focus {
-  border-color: #3498db;
+  border-color: #4ddb34;
   outline: none;
 }
 textarea { resize: vertical; }
@@ -579,7 +579,7 @@ textarea { resize: vertical; }
 }
 .btn-soumettre {
   padding: 12px 28px;
-  background: #2c3e50;
+  background: #9dc010;
   color: white;
   border: none;
   border-radius: 8px;
@@ -604,5 +604,30 @@ textarea { resize: vertical; }
   background: transparent;
   border: 1px solid currentColor;
   color: var(--color-text-success);
+}
+/* ===== FIX VISIBILITÉ INPUTS (IMPORTANT) ===== */
+input,
+select,
+textarea {
+  background-color: rgba(255,255,255,0.08) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255,255,255,0.2) !important;
+}
+
+/* placeholder */
+input::placeholder,
+textarea::placeholder {
+  color: #cbd5e1 !important;
+}
+
+/* select texte */
+select {
+  color: #ffffff !important;
+}
+
+/* options dropdown */
+select option {
+  background-color: #1e1e3f !important;
+  color: white !important;
 }
 </style>

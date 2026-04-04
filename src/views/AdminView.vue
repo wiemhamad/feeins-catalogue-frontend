@@ -305,7 +305,7 @@ const iconeType = (type) => {
 }
 .tab-active { color: #2c3e50; border-bottom-color: #2c3e50; }
 .tab .badge {
-  background: #e74c3c; color: white;
+  background: #120F34 0%; color: white;
   border-radius: 50%; width: 20px; height: 20px;
   font-size: 11px; display: flex; align-items: center; justify-content: center;
 }

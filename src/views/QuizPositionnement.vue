@@ -417,7 +417,7 @@ const labelDiff = (d) => ({ DEBUTANT:'Débutant', INTERMEDIAIRE:'Intermédiaire'
 }
 .brand-logo {
   width: 28px; height: 28px;
-  background: linear-gradient(135deg, #ec4899, #8b5cf6);
+  background:  #D4FF00;
   border-radius: 7px;
   color: white;
   font-weight: 800;
@@ -456,7 +456,7 @@ const labelDiff = (d) => ({ DEBUTANT:'Débutant', INTERMEDIAIRE:'Intermédiaire'
 }
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #8b5cf6, #ec4899);
+  background: #D4FF00;
   border-radius: 2px;
   transition: width 0.4s ease;
 }
@@ -600,7 +600,7 @@ const labelDiff = (d) => ({ DEBUTANT:'Débutant', INTERMEDIAIRE:'Intermédiaire'
 .choix-check {
   width: 20px; height: 20px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #8b5cf6, #ec4899);
+  background:  #D4FF00;
   color: white;
   font-size: 11px;
   display: flex; align-items: center; justify-content: center;
@@ -625,7 +625,7 @@ const labelDiff = (d) => ({ DEBUTANT:'Débutant', INTERMEDIAIRE:'Intermédiaire'
 
 /* ===== BUTTONS ===== */
 .btn-primary {
-  background: linear-gradient(135deg, #7c3aed, #ec4899);
+  background: linear-gradient(135deg, #D4FF00, #140F37);
   color: white;
   border: none;
   border-radius: 12px;

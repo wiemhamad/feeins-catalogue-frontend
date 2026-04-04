@@ -245,12 +245,12 @@ const register = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1a0533 0%, #b471be 100%);
+  background: #151039;
   padding: 20px;
 }
 
 .login-card {
-  background: white;
+  background: rgb(35, 8, 81);
   border-radius: 16px;
   padding: 40px;
   width: 100%;
@@ -265,7 +265,7 @@ const register = async () => {
 }
 .brand-logo {
   width: 28px; height: 28px;
-  background: linear-gradient(135deg, #ec4899, #8b5cf6);
+  background: #D4FF00 ;
   border-radius: 7px;
   color: white;
   font-weight: 800;
@@ -277,7 +277,7 @@ const register = async () => {
   font-family: 'Syne', sans-serif;
   font-weight: 700;
   font-size: 1.25rem;
-  color: rgba(178, 26, 171, 0.9);
+  color: #D4FF00 ;
   flex: 1;
 }
 .brand-nav {

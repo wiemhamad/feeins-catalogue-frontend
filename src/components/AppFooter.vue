@@ -1,70 +1,118 @@
 <template>
-<footer class="footer">
-  <div class="footer-container">
-    <div class="footer-section">
-      <h4>FEEINS</h4>
-      <p>Former des designers et des étudiants ingénieurs en Santé Numérique.</p>
+  <footer class="footer">
+
+    <div class="footer-container">
+
+      <!-- BRAND -->
+      <div class="footer-section brand">
+        <h3>FEEINS</h3>
+        <p>
+          Plateforme dédiée à la formation en santé numérique,
+          pour apprendre, créer et partager des ressources pédagogiques.
+        </p>
+      </div>
+
+      <!-- NAVIGATION -->
+      <div class="footer-section">
+        <h4>Navigation</h4>
+        <ul>
+          <li><a href="/">Accueil</a></li>
+          <li><a href="/catalogue">Catalogue</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+
+      <!-- LEGAL -->
+      <div class="footer-section">
+        <h4>Légal</h4>
+        <ul>
+          <li><a href="#">Mentions légales</a></li>
+          <li><a href="#">Confidentialité</a></li>
+        </ul>
+      </div>
+
+      <!-- PARTENAIRES -->
+      <div class="footer-section">
+        <h4>Partenaires</h4>
+        <p>UC • UNIT • ISIS</p>
+      </div>
+
     </div>
 
-    <div class="footer-section">
-      <h4>Liens utiles</h4>
-      <ul>
-        <li><a href="#">À propos</a></li>
-        <li><a href="#">Contact</a></li>
-        <li><a href="#">Mentions légales</a></li>
-      </ul>
+    <!-- BOTTOM -->
+    <div class="footer-bottom">
+      <p>© 2026 FEEINS — Tous droits réservés</p>
     </div>
 
-    <div class="footer-section">
-      <h4>Partenaires</h4>
-      <p>UC • Unit • ISIS</p>
-    </div>
-  </div>
-
-  <div class="footer-bottom">
-    <p>&copy; 2026 FEEINS. Tous droits réservés.</p>
-  </div>
-</footer>
+  </footer>
 </template>
 
+<script setup>
+</script>
+
 <style scoped>
+
+/* FOOTER GLOBAL */
 .footer {
   width: 100%;
-  background: linear-gradient(135deg,#d4ff0074 50%,#120F34 50%);
-  border-top: none;
-  padding: 40px 20px 20px;
+  padding: 60px 20px 30px;
+  background: linear-gradient(135deg, #0b0f2a, #1f1147);
   color: white;
-  font-size: 0.95rem;
-  margin-top: 60px;
+  position: relative;
+  overflow: hidden;
 }
 
+/* GLOW EFFECT */
+.footer::before {
+  content: "";
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background: rgba(125, 249, 255, 0.15);
+  filter: blur(120px);
+  top: -100px;
+  left: -100px;
+}
+
+/* CONTAINER */
 .footer-container {
-  max-width: 1180px;
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
   margin: 0 auto;
+
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 30px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 40px;
+
+  padding-bottom: 30px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
+/* SECTIONS */
 .footer-section h4 {
-  margin: 0 0 12px;
-  font-size: 1rem;
-  font-weight: 600;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
+  color: #7df9ff;
 }
 
 .footer-section p {
-  margin: 0;
-  opacity: 0.9;
+  color: #bbb;
+  font-size: 0.9rem;
   line-height: 1.6;
 }
 
+/* BRAND */
+.brand h3 {
+  font-size: 1.4rem;
+  margin-bottom: 10px;
+}
+
+/* LIST */
 .footer-section ul {
   list-style: none;
-  margin: 0;
   padding: 0;
 }
 
@@ -72,23 +120,32 @@
   margin-bottom: 8px;
 }
 
+/* LINKS */
 .footer-section a {
-  color: white;
+  color: #bbb;
   text-decoration: none;
-  opacity: 0.9;
-  transition: opacity 0.3s ease;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
 }
 
 .footer-section a:hover {
-  opacity: 1;
+  color: #7df9ff;
+  transform: translateX(4px);
 }
 
+/* BOTTOM */
 .footer-bottom {
-  max-width: 1180px;
-  margin: 0 auto;
-  padding-top: 20px;
   text-align: center;
-  font-size: 0.85rem;
-  opacity: 0.8;
+  margin-top: 20px;
+  font-size: 0.8rem;
+  color: #888;
 }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .footer {
+    text-align: center;
+  }
+}
+
 </style>

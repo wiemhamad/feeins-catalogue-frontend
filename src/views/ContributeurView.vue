@@ -87,9 +87,27 @@
             <input v-model="form.dureeMinutes" type="number" min="1" placeholder="20" />
           </label>
 
-          <label>
-            <span>URL d'accès (Moodle ou externe)</span>
-            <input v-model="form.urlAcces" type="url" placeholder="https://moodle.univ-jfc.fr/..." />
+          <!-- URL OU UPLOAD FICHIER -->
+          <label class="full">
+            <span>📎 Fichier ou URL d'accès</span>
+            <div class="upload-tabs">
+              <button type="button" :class="['upload-tab', uploadMode==='url' ? 'active':'']" @click="uploadMode='url'">🔗 URL</button>
+              <button type="button" :class="['upload-tab', uploadMode==='file' ? 'active':'']" @click="uploadMode='file'">📂 Fichier local</button>
+            </div>
+            <input v-if="uploadMode==='url'" v-model="form.urlAcces" type="url" placeholder="https://moodle.univ-jfc.fr/..." />
+            <div v-else class="file-upload-zone" @dragover.prevent @drop.prevent="onFileDrop">
+              <input type="file" id="file-input" class="file-input-hidden" @change="onFileChange" accept=".pdf,.mp4,.mov,.avi,.h5p,.html,.zip" />
+              <label for="file-input" class="file-upload-label">
+                <span v-if="!selectedFile">
+                  📂 Glissez un fichier ici ou <u>cliquez pour choisir</u><br/>
+                  <small>PDF, Vidéo (mp4, mov), H5P, HTML — max 200 Mo</small>
+                </span>
+                <span v-else class="file-selected">
+                  ✅ {{ selectedFile.name }} ({{ formatFileSize(selectedFile.size) }})
+                  <button type="button" class="file-clear" @click.prevent="clearFile">✕</button>
+                </span>
+              </label>
+            </div>
           </label>
 
           <!-- USAGE PÉDAGOGIQUE — champ critique -->
@@ -252,6 +270,39 @@ const saving = ref(false)
 const visibilityLoadingId = ref(null)
 const feedback = ref({ type: '', message: '' })
 
+const uploadMode = ref('url')
+const selectedFile = ref(null)
+
+const onFileChange = (e) => {
+  const file = e.target.files[0]
+  if (file) {
+    selectedFile.value = file
+    // On stocke le nom comme URL temporaire — dans une vraie appli, on uploadrait sur un serveur
+    form.value.urlAcces = `[Fichier local: ${file.name}]`
+  }
+}
+
+const onFileDrop = (e) => {
+  const file = e.dataTransfer.files[0]
+  if (file) {
+    selectedFile.value = file
+    form.value.urlAcces = `[Fichier local: ${file.name}]`
+  }
+}
+
+const clearFile = () => {
+  selectedFile.value = null
+  form.value.urlAcces = ''
+  const input = document.getElementById('file-input')
+  if (input) input.value = ''
+}
+
+const formatFileSize = (bytes) => {
+  if (bytes < 1024) return bytes + ' o'
+  if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' Ko'
+  return (bytes/(1024*1024)).toFixed(1) + ' Mo'
+}
+
 const emptyForm = () => ({
   titre: '',
   description: '',
@@ -271,7 +322,7 @@ const emptyForm = () => ({
 })
 
 const form = ref(emptyForm())
-const resetForm = () => { form.value = emptyForm() }
+const resetForm = () => { form.value = emptyForm(); uploadMode.value = 'url'; selectedFile.value = null }
 
 const toggleTag = (tagId) => {
   form.value.tagIds = form.value.tagIds.includes(tagId)
@@ -474,6 +525,17 @@ onMounted(async () => {
 button:disabled { opacity: 0.5; cursor: not-allowed; }
 
 @media (max-width: 1080px) { .creator-layout { grid-template-columns: 1fr; } }
+.upload-tabs { display:flex;gap:6px;margin-bottom:8px; }
+.upload-tab { padding:6px 14px;border-radius:999px;border:1px solid #cbd5e1;background:#fff;color:#334155;cursor:pointer;font-size:13px;font-family:inherit; }
+.upload-tab.active { background:#0f766e;border-color:#0f766e;color:white; }
+
+.file-upload-zone { border:2px dashed #cbd5e1;border-radius:12px;background:#f8fafc;transition:border-color 0.2s; }
+.file-upload-zone:hover { border-color:#0f766e; }
+.file-input-hidden { position:absolute;width:1px;height:1px;opacity:0;overflow:hidden; }
+.file-upload-label { display:flex;align-items:center;justify-content:center;min-height:80px;cursor:pointer;padding:16px;text-align:center;color:#64748b;font-size:13px;line-height:1.6; }
+.file-selected { display:flex;align-items:center;gap:10px;color:#0f766e;font-weight:600; }
+.file-clear { background:none;border:1px solid #cbd5e1;border-radius:6px;cursor:pointer;padding:2px 8px;color:#64748b; }
+
 @media (max-width: 720px) {
   .creator-hero, .panel-header, .creator-card { flex-direction: column; align-items: stretch; }
   .creator-form { grid-template-columns: 1fr; }

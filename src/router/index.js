@@ -12,6 +12,7 @@ const router = createRouter({
     { path: '/catalogue', name: 'catalogue', component: () => import('@/views/CatalogueView.vue') },
     { path: '/quiz', name: 'quiz', component: () => import('@/views/QuizPositionnement.vue') },
     { path: '/login', name: 'login', component: () => import('@/views/LoginView.vue') },
+    { path: '/templates', name: 'templates', component: () => import('@/views/TemplatesPublicView.vue') },
 
     // =====================================================
     // ROUTES CONTRIBUTEUR — crée et gère ses ressources

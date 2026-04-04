@@ -17,7 +17,16 @@
 
     <div class="card-footer">
       <span class="card-meta">{{ metaLabel }}</span>
-      <span class="card-link">{{ actionLabel }} →</span>
+      <a
+        v-if="ressource.urlAcces && !ressource.urlAcces.startsWith('[Fichier')"
+        :href="ressource.urlAcces"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="card-link card-link-active"
+      >{{ actionLabel }} →</a>
+      <span v-else class="card-link card-link-disabled" title="URL non disponible">
+        {{ actionLabel }} →
+      </span>
     </div>
   </article>
 </template>
@@ -136,8 +145,24 @@ const metaLabel = computed(() => {
 }
 
 .card-link {
-  color: #14b8a6;
   font-size: 0.76rem;
   font-weight: 700;
+  text-decoration: none;
+}
+
+.card-link-active {
+  color: #14b8a6;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.card-link-active:hover {
+  color: #0d9488;
+  text-decoration: underline;
+}
+
+.card-link-disabled {
+  color: #cbd5e1;
+  cursor: not-allowed;
 }
 </style>

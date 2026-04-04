@@ -39,9 +39,15 @@
             👑 Admin
           </RouterLink>
 
-          <!-- Si connecté : bouton utilisateur + déconnexion -->
+          <!-- Si connecté : avatar + nom + rôle + déconnexion -->
           <template v-if="authStore.isLoggedIn">
-            <span class="nav-user-chip">{{ authStore.userDisplayName }}</span>
+            <div class="nav-user-block">
+              <div class="nav-user-avatar">{{ authStore.userDisplayName.charAt(0).toUpperCase() }}</div>
+              <div class="nav-user-info">
+                <span class="nav-user-name">{{ authStore.userDisplayName }}</span>
+                <span class="nav-user-role">{{ roleLabel }}</span>
+              </div>
+            </div>
             <button class="nav-user-btn" @click="logout">Déconnexion</button>
           </template>
 
@@ -60,12 +66,21 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import AppFooter from './components/AppFooter.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
+
+const roleLabels = {
+  ADMINISTRATEUR_PEDAGOGIQUE: '👑 Admin',
+  ENSEIGNANT: '👨‍🏫 Enseignant',
+  CONTRIBUTEUR: '✏️ Contributeur',
+  ETUDIANT: '🎓 Étudiant',
+}
+const roleLabel = computed(() => roleLabels[authStore.userRole] || '👤 Utilisateur')
 
 const logout = () => {
   authStore.logout()
@@ -191,13 +206,46 @@ a { color: inherit; text-decoration: none; }
   box-shadow: 0 8px 20px rgba(177,136,232,0.25);
 }
 
-.nav-user-chip {
-  padding: 6px 12px;
+.nav-user-block {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 14px 6px 6px;
   border-radius: 999px;
-  background: rgba(212, 255, 0, 0.15);
+  background: rgba(212, 255, 0, 0.12);
+  border: 1px solid rgba(212, 255, 0, 0.25);
+}
+
+.nav-user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #D4FF00, #a8cc00);
+  color: #0b0f2a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.nav-user-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.nav-user-name {
+  font-size: 0.85rem;
+  font-weight: 700;
   color: #D4FF00;
-  font-size: 0.82rem;
-  font-weight: 600;
+}
+
+.nav-user-role {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.65);
+  font-weight: 500;
 }
 
 /* MAIN */

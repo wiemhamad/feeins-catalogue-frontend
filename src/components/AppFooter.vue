@@ -8,7 +8,7 @@
         <h3>FEEINS</h3>
         <p>
           Plateforme dédiée à la formation en santé numérique,
-          pour apprendre, créer et partager des ressources pédagogiques.
+          pour apprendre, créer et partager des ressources pédagogique.
         </p>
       </div>
 

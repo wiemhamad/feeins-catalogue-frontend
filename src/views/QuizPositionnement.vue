@@ -1,6 +1,6 @@
 <template>
   <div class="quiz-page">
-
+ 
     <!-- Fond spatial -->
     <div class="space-bg">
       <div class="nebula n1"></div>
@@ -8,7 +8,7 @@
       <div class="nebula n3"></div>
       <div class="stars"></div>
     </div>
-
+ 
     <!-- ===== ÉTAPE 0 : ACCUEIL ===== -->
     <div v-if="etape === 0" class="quiz-accueil glass-card">
       <div class="brand">
@@ -26,10 +26,10 @@
         </button>
       </div>
     </div>
-
+ 
     <!-- ===== ÉTAPES QUESTIONS ===== -->
     <div v-else-if="etape <= questions.length" class="quiz-container glass-card">
-
+ 
       <!-- Brand -->
       <div class="brand">
         <div class="brand-logo">F</div>
@@ -38,23 +38,28 @@
           <span v-for="i in questions.length" :key="i" class="nav-dot" :class="{ active: i === etape, done: i < etape }"></span>
         </div>
       </div>
-
+ 
       <!-- Progression -->
       <div class="progress-bar">
         <div class="progress-fill" :style="{ width: ((etape - 1) / questions.length * 100) + '%' }"></div>
       </div>
-
+ 
       <!-- Question -->
       <div class="question-block" :key="etape">
         <h2 class="question-titre">{{ questionActuelle.titre }}</h2>
         <p class="question-sub" v-if="questionActuelle.description">{{ questionActuelle.description }}</p>
-
+ 
+        <!-- Badge "choix multiple" si applicable -->
+        <div v-if="questionActuelle.multiple" class="multi-hint">
+          ✦ Plusieurs réponses possibles
+        </div>
+ 
         <div class="choix-grid" :class="{ 'choix-grid-2': questionActuelle.choix.length === 4 && questionActuelle.id === 'typeSupport' }">
           <button
             v-for="choix in questionActuelle.choix"
             :key="choix.valeur"
             class="choix-btn"
-            :class="{ selected: reponseSelectionnee === choix.valeur }"
+            :class="{ selected: estSelectionne(choix.valeur) }"
             @click="selectionnerReponse(choix.valeur)"
           >
             <div class="choix-left">
@@ -66,39 +71,43 @@
             </div>
             <div class="choix-right">
               <span v-if="choix.badge" class="choix-badge" :class="'badge-' + choix.badge">{{ choix.badge }}</span>
-              <div class="choix-check" :class="{ visible: reponseSelectionnee === choix.valeur }">✓</div>
+              <!-- Checkbox style pour multi, check rond pour single -->
+              <div v-if="questionActuelle.multiple" class="choix-checkbox" :class="{ visible: estSelectionne(choix.valeur) }">
+                <span v-if="estSelectionne(choix.valeur)">✓</span>
+              </div>
+              <div v-else class="choix-check" :class="{ visible: estSelectionne(choix.valeur) }">✓</div>
             </div>
           </button>
         </div>
       </div>
-
+ 
       <!-- Navigation -->
       <div class="quiz-nav">
         <button v-if="etape > 1" @click="precedente" class="btn-ghost-sm">← Retour</button>
         <span v-else></span>
         <div class="nav-right">
-          <button @click="suivante" class="btn-primary" :disabled="!reponseSelectionnee">
+          <button @click="suivante" class="btn-primary" :disabled="!aSelectionne">
             {{ etape === questions.length ? 'Continuer' : 'Suivant' }} &nbsp;›
           </button>
           <button class="btn-skip" @click="passer">Passer le quiz</button>
         </div>
       </div>
     </div>
-
+ 
     <!-- ===== RÉSULTATS ===== -->
     <div v-else class="quiz-resultats glass-card">
-
+ 
       <div class="brand">
         <div class="brand-logo">F</div>
         <span>FEEINS</span>
       </div>
-
+ 
       <div class="profil-header">
         <div class="profil-badge">✦</div>
         <h2>Profil complété !</h2>
         <p>Voici vos recommandations personnalisées</p>
       </div>
-
+ 
       <!-- Image profil + info -->
       <div class="profil-info">
         <div class="profil-visual">
@@ -110,20 +119,30 @@
           </div>
         </div>
       </div>
-
+ 
+      <!-- Récap des choix multiples -->
+      <div v-if="recapMultiples.length > 0" class="recap-multi">
+        <div v-for="r in recapMultiples" :key="r.id" class="recap-item">
+          <span class="recap-label">{{ r.label }}</span>
+          <div class="recap-tags">
+            <span v-for="v in r.valeurs" :key="v" class="recap-tag">{{ v }}</span>
+          </div>
+        </div>
+      </div>
+ 
       <!-- Parcours recommandés -->
       <div class="recommandations">
         <h3>Parcours recommandés</h3>
-
+ 
         <div v-if="loadingRessources" class="loading-state">
           <div class="spinner"></div>
           <p>Recherche en cours...</p>
         </div>
-
+ 
         <div v-else-if="ressourcesRecommandees.length === 0" class="empty-state">
           <p>Aucune ressource trouvée. De nouvelles ressources arrivent bientôt !</p>
         </div>
-
+ 
         <div v-else class="reco-list">
           <div
             v-for="r in ressourcesRecommandees"
@@ -144,100 +163,138 @@
           </div>
         </div>
       </div>
-
+ 
       <button class="btn-primary btn-large" @click="$router.push('/catalogue')">
         Accéder à mon espace &nbsp;›
       </button>
       <button class="btn-ghost" @click="recommencer">🔄 Refaire le quiz</button>
     </div>
-
+ 
   </div>
 </template>
-
+ 
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/api/axios'
-
+ 
 const router = useRouter()
 const etape = ref(0)
 const reponses = ref({})
+// Pour les questions multiple, on stocke un tableau ; sinon une valeur scalaire
 const reponseSelectionnee = ref(null)
 const ressourcesRecommandees = ref([])
 const loadingRessources = ref(false)
-
+ 
 const questions = ref([
   {
     id: 'objectif',
     titre: "Quel est votre objectif aujourd'hui ?",
     description: 'Nous sélectionnons le contenu idéal pour votre parcours actuel.',
+    multiple: false,
     choix: [
-      { valeur: 'consulter', label: 'Consulter les ressources', detail: 'Explorer le catalogue disponible', icone: '🔍' },
-      { valeur: 'reviser',   label: 'Réviser / Apprendre',     detail: 'Tester et valider mes connaissances', icone: '📖' },
-      { valeur: 'creer',     label: 'Créer / Publier du contenu', detail: 'Partager votre expertise à la communauté', icone: '✏️' },
-      { valeur: 'expert',    label: 'Enseignant / Expert',     detail: 'Formation continue et pédagogie', icone: '🎓', badge: 'Expert' }
+      { valeur: 'consulter', label: 'Consulter les ressources',       detail: 'Explorer le catalogue disponible',          icone: '🔍' },
+      { valeur: 'reviser',   label: 'Réviser / Apprendre',            detail: 'Tester et valider mes connaissances',       icone: '📖' },
+      { valeur: 'creer',     label: 'Créer / Publier du contenu',     detail: 'Partager votre expertise à la communauté',  icone: '✏️' },
+      { valeur: 'expert',    label: 'Enseignant / Expert',            detail: 'Formation continue et pédagogie',           icone: '🎓', badge: 'Expert' }
     ]
   },
   {
     id: 'niveau',
     titre: 'Quel est votre niveau ?',
     description: 'Nous filtrons les contenus adaptés pour vous.',
+    multiple: false,
     choix: [
-      { valeur: 1, label: 'Débutant',        detail: 'Je débute dans le numérique en santé', icone: '🌱', badge: 'Débutant' },
-      { valeur: 2, label: 'Intermédiaire',   detail: "J'ai déjà des bases solides", icone: '📈', badge: 'Intermédiaire' },
-      { valeur: 3, label: 'Avancé',          detail: 'Je suis à l\'aise dans ce domaine de compétence', icone: '🚀', badge: 'Avancé' },
-      { valeur: 4, label: 'Enseignant / Expert', detail: 'Formation continue en santé numérique', icone: '👨‍🏫', badge: 'Expert' }
+      { valeur: 1, label: 'Débutant',            detail: 'Je débute dans le numérique en santé',           icone: '🌱', badge: 'Débutant' },
+      { valeur: 2, label: 'Intermédiaire',        detail: "J'ai déjà des bases solides",                   icone: '📈', badge: 'Intermédiaire' },
+      { valeur: 3, label: 'Avancé',               detail: "Je suis à l'aise dans ce domaine",              icone: '🚀', badge: 'Avancé' },
+      { valeur: 4, label: 'Enseignant / Expert',  detail: 'Formation continue en santé numérique',         icone: '👨‍🏫', badge: 'Expert' }
     ]
   },
   {
     id: 'dureeMax',
     titre: 'Combien de temps avez-vous ?',
     description: 'Nous adapterons la durée des ressources proposées.',
+    multiple: false,
     choix: [
-      { valeur: 10,  label: '5 - 10 min',    detail: 'Micro-learning rapide', icone: '⚡' },
-      { valeur: 30,  label: '15 - 30 min',   detail: "Apprentissage d'appoint", icone: '⏱' },
-      { valeur: 60,  label: '30 - 60 min',   detail: "Approfondissement d'un sujet", icone: '📚' },
-      { valeur: 999, label: 'Plus d\'1h',    detail: 'Apprentissage expert', icone: '🎯' }
+      { valeur: 10,  label: '5 - 10 min',    detail: 'Micro-learning rapide',            icone: '⚡' },
+      { valeur: 30,  label: '15 - 30 min',   detail: "Apprentissage d'appoint",          icone: '⏱' },
+      { valeur: 60,  label: '30 - 60 min',   detail: "Approfondissement d'un sujet",     icone: '📚' },
+      { valeur: 999, label: "Plus d'1h",     detail: 'Apprentissage expert',             icone: '🎯' }
     ]
   },
   {
     id: 'typeSupport',
     titre: 'Préférence de format ?',
-    description: 'Comment préférez-vous apprendre ?',
+    description: 'Comment préférez-vous apprendre ? (plusieurs choix possibles)',
+    multiple: true,
     choix: [
-      { valeur: 'VIDEO', label: 'Vidéos',             icone: '🎥' },
-      { valeur: 'QUIZ',  label: 'Quiz',               icone: '❓' },
+      { valeur: 'VIDEO', label: 'Vidéos',              icone: '🎥' },
+      { valeur: 'QUIZ',  label: 'Quiz',                icone: '❓' },
       { valeur: 'H5P',   label: 'Modules Interactifs', icone: '🎮' },
-      { valeur: 'PDF',   label: 'Documents PDF',       icone: '📄' },
-      { valeur: null,    label: 'Tous les formats',   icone: '📦' }
+      { valeur: 'PDF',   label: 'Documents PDF',       icone: '📄' }
     ]
   },
   {
     id: 'difficulte',
     titre: 'Quel niveau de difficulté adapté ?',
     description: 'Pour mieux filtrer les contenus par difficulté.',
+    multiple: false,
     choix: [
-      { valeur: 'DEBUTANT',      label: 'Débutant',       detail: 'Je découvre la santé numérique', icone: '🌱', badge: 'Débutant' },
-      { valeur: 'intermediaire', label: 'Réviser / Apprendre', detail: 'Tester mes connaissances', icone: '📈' },
-      { valeur: 'AVANCE',        label: "Créer / Publier du contenu", detail: 'Partager votre expertise', icone: '🚀' },
-      { valeur: 'autre',         label: 'Autre',          detail: '', icone: '…' }
+      { valeur: 'DEBUTANT',      label: 'Débutant',              detail: 'Je découvre la santé numérique',    icone: '🌱', badge: 'Débutant' },
+      { valeur: 'intermediaire', label: 'Réviser / Apprendre',   detail: 'Tester mes connaissances',          icone: '📈' },
+      { valeur: 'AVANCE',        label: 'Créer / Publier',       detail: 'Partager votre expertise',          icone: '🚀' },
+      { valeur: 'autre',         label: 'Autre',                 detail: '',                                   icone: '…' }
     ]
   },
   {
     id: 'thematique',
     titre: 'Quels domaines vous intéressent ?',
-    description: 'Pour vous proposer les meilleurs contenus.',
+    description: 'Pour vous proposer les meilleurs contenus. (plusieurs choix possibles)',
+    multiple: true,
     choix: [
-      { valeur: 5, label: 'Télémédecine',  icone: '🏥' },
-      { valeur: 3, label: 'Données médicales', icone: '🔒' },
-      { valeur: 6, label: 'Anatomie',      icone: '🫀' },
-      { valeur: 1, label: 'Réglementation', icone: '📋' }
+      { valeur: 5, label: 'Télémédecine',       icone: '🏥' },
+      { valeur: 3, label: 'Données médicales',  icone: '🔒' },
+      { valeur: 6, label: 'Anatomie',           icone: '🫀' },
+      { valeur: 1, label: 'Réglementation',     icone: '📋' }
     ]
   }
 ])
-
+ 
 const questionActuelle = computed(() => questions.value[etape.value - 1])
-
+ 
+// Vérifie si une valeur est sélectionnée (gère single ET multiple)
+const estSelectionne = (valeur) => {
+  if (!questionActuelle.value) return false
+  if (questionActuelle.value.multiple) {
+    return Array.isArray(reponseSelectionnee.value) && reponseSelectionnee.value.includes(valeur)
+  }
+  return reponseSelectionnee.value === valeur
+}
+ 
+// Vérifie si au moins une réponse est sélectionnée pour activer "Suivant"
+const aSelectionne = computed(() => {
+  if (!questionActuelle.value) return false
+  if (questionActuelle.value.multiple) {
+    return Array.isArray(reponseSelectionnee.value) && reponseSelectionnee.value.length > 0
+  }
+  return reponseSelectionnee.value !== null && reponseSelectionnee.value !== undefined
+})
+ 
+// Récap des questions multi pour l'écran résultats
+const recapMultiples = computed(() => {
+  return questions.value
+    .filter(q => q.multiple && reponses.value[q.id] && reponses.value[q.id].length > 0)
+    .map(q => ({
+      id: q.id,
+      label: q.titre,
+      valeurs: reponses.value[q.id].map(v => {
+        const c = q.choix.find(c => c.valeur === v)
+        return c ? c.label : v
+      })
+    }))
+})
+ 
 const profils = [
   {
     icone: '🌱', titre: 'Apprenant débutant',
@@ -264,72 +321,111 @@ const profils = [
     condition: (r) => r.niveau === 4
   }
 ]
-
+ 
 const profilDetecte = computed(() => profils.find(p => p.condition(reponses.value)) || profils[0])
-
+ 
 const demarrer = () => { etape.value = 1 }
 const passer   = () => { router.push('/catalogue') }
-
-const selectionnerReponse = (v) => { reponseSelectionnee.value = v }
-
+ 
+const selectionnerReponse = (valeur) => {
+  if (questionActuelle.value.multiple) {
+    // Toggle dans le tableau
+    if (!Array.isArray(reponseSelectionnee.value)) reponseSelectionnee.value = []
+    const idx = reponseSelectionnee.value.indexOf(valeur)
+    if (idx === -1) {
+      reponseSelectionnee.value = [...reponseSelectionnee.value, valeur]
+    } else {
+      reponseSelectionnee.value = reponseSelectionnee.value.filter(v => v !== valeur)
+    }
+  } else {
+    reponseSelectionnee.value = valeur
+  }
+}
+ 
+// Restaure la réponse sauvegardée pour la question courante
+const restaurerReponse = (idQuestion) => {
+  const saved = reponses.value[idQuestion]
+  if (saved !== undefined) {
+    reponseSelectionnee.value = saved
+  } else {
+    const q = questions.value.find(q => q.id === idQuestion)
+    reponseSelectionnee.value = q?.multiple ? [] : null
+  }
+}
+ 
 const suivante = async () => {
-  if (reponseSelectionnee.value === undefined || reponseSelectionnee.value === null) return
+  if (!aSelectionne.value) return
   reponses.value[questionActuelle.value.id] = reponseSelectionnee.value
-  reponseSelectionnee.value = null
   if (etape.value < questions.value.length) {
     etape.value++
-    reponseSelectionnee.value = reponses.value[questions.value[etape.value - 1].id] ?? null
+    restaurerReponse(questions.value[etape.value - 1].id)
   } else {
     etape.value++
     await chargerRessources()
   }
 }
-
+ 
 const precedente = () => {
   reponses.value[questionActuelle.value.id] = reponseSelectionnee.value
   etape.value--
-  reponseSelectionnee.value = reponses.value[questions.value[etape.value - 1].id] ?? null
+  restaurerReponse(questions.value[etape.value - 1].id)
 }
-
+ 
 const recommencer = () => {
   etape.value = 0
   reponses.value = {}
   reponseSelectionnee.value = null
   ressourcesRecommandees.value = []
 }
-
+ 
 const chargerRessources = async () => {
   loadingRessources.value = true
   try {
     const r = reponses.value
     const criteres = {}
+ 
     if (r.niveau && r.niveau !== 4) criteres.niveauId = r.niveau
-    if (r.thematique) criteres.thematiqueId = r.thematique
-    if (r.typeSupport) criteres.typeSupport = r.typeSupport
-    if (r.difficulte && !['intermediaire','autre'].includes(r.difficulte)) criteres.difficulte = r.difficulte
+ 
+    // thematique : si tableau non vide, on envoie le premier (ou on adapte si l'API gère les tableaux)
+    if (r.thematique && r.thematique.length > 0) {
+      criteres.thematiqueIds = r.thematique  // tableau complet
+      criteres.thematiqueId  = r.thematique[0] // fallback pour les API qui n'acceptent qu'une valeur
+    }
+ 
+    // typeSupport : si tableau non vide, on envoie le premier (ou le tableau complet)
+    if (r.typeSupport && r.typeSupport.length > 0) {
+      criteres.typeSupports = r.typeSupport   // tableau complet
+      criteres.typeSupport  = r.typeSupport[0] // fallback pour les API qui n'acceptent qu'une valeur
+    }
+ 
+    if (r.difficulte && !['intermediaire', 'autre'].includes(r.difficulte)) criteres.difficulte = r.difficulte
     if (r.dureeMax && r.dureeMax !== 999) criteres.dureeMax = r.dureeMax
-
+ 
     const res = await api.post('/api/ressources/rechercher', criteres)
     ressourcesRecommandees.value = res.data.slice(0, 4)
+ 
     if (ressourcesRecommandees.value.length === 0) {
       const res2 = await api.get('/api/ressources')
       ressourcesRecommandees.value = res2.data.slice(0, 4)
     }
-  } catch { ressourcesRecommandees.value = [] }
-  finally { loadingRessources.value = false }
+  } catch {
+    ressourcesRecommandees.value = []
+  } finally {
+    loadingRessources.value = false
+  }
 }
-
-const iconeType = (t) => ({ VIDEO:'🎥', H5P:'🎮', PDF:'📄', QUIZ:'❓', HTML:'🌐', LIEN:'🔗' }[t] || '📦')
-const iconBg   = (t) => ({ VIDEO:'linear-gradient(135deg,#4facfe,#667eea)', H5P:'linear-gradient(135deg,#a855f7,#7c3aed)', PDF:'linear-gradient(135deg,#f87171,#ef4444)', QUIZ:'linear-gradient(135deg,#34d399,#059669)' }[t] || 'linear-gradient(135deg,#94a3b8,#64748b)')
-const labelDiff = (d) => ({ DEBUTANT:'Débutant', INTERMEDIAIRE:'Intermédiaire', AVANCE:'Avancé' }[d] || d || '')
+ 
+const iconeType  = (t) => ({ VIDEO:'🎥', H5P:'🎮', PDF:'📄', QUIZ:'❓', HTML:'🌐', LIEN:'🔗' }[t] || '📦')
+const iconBg     = (t) => ({ VIDEO:'linear-gradient(135deg,#4facfe,#667eea)', H5P:'linear-gradient(135deg,#a855f7,#7c3aed)', PDF:'linear-gradient(135deg,#f87171,#ef4444)', QUIZ:'linear-gradient(135deg,#34d399,#059669)' }[t] || 'linear-gradient(135deg,#94a3b8,#64748b)')
+const labelDiff  = (d) => ({ DEBUTANT:'Débutant', INTERMEDIAIRE:'Intermédiaire', AVANCE:'Avancé' }[d] || d || '')
 </script>
-
+ 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
-
+ 
 /* ===== BASE ===== */
 * { box-sizing: border-box; }
-
+ 
 .quiz-page {
   min-height: 100vh;
   display: flex;
@@ -340,7 +436,7 @@ const labelDiff = (d) => ({ DEBUTANT:'Débutant', INTERMEDIAIRE:'Intermédiaire'
   overflow: hidden;
   font-family: 'DM Sans', sans-serif;
 }
-
+ 
 /* ===== FOND SPATIAL ===== */
 .space-bg {
   position: fixed;
@@ -348,15 +444,14 @@ const labelDiff = (d) => ({ DEBUTANT:'Débutant', INTERMEDIAIRE:'Intermédiaire'
   background: linear-gradient(135deg, #0f0524 0%, #1a0a3e 30%, #0d1b4b 60%, #1a0533 100%);
   z-index: 0;
 }
-
+ 
 .nebula {
   position: absolute;
   border-radius: 50%;
   filter: blur(80px);
   pointer-events: none;
 }
-
-
+ 
 .n1 {
   width: 600px; height: 500px;
   background: radial-gradient(ellipse, rgba(139, 92, 246, 0.45) 0%, transparent 70%);
@@ -392,7 +487,7 @@ const labelDiff = (d) => ({ DEBUTANT:'Débutant', INTERMEDIAIRE:'Intermédiaire'
     radial-gradient(1px 1px at 92% 18%, rgba(255,255,255,0.7) 0%, transparent 100%),
     radial-gradient(1px 1px at 5%  55%, rgba(255,255,255,0.4) 0%, transparent 100%);
 }
-
+ 
 /* ===== GLASS CARD ===== */
 .glass-card {
   position: relative;
@@ -407,7 +502,7 @@ const labelDiff = (d) => ({ DEBUTANT:'Débutant', INTERMEDIAIRE:'Intermédiaire'
   max-width: 480px;
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255,255,255,0.1);
 }
-
+ 
 /* ===== BRAND ===== */
 .brand {
   display: flex;
@@ -417,7 +512,7 @@ const labelDiff = (d) => ({ DEBUTANT:'Débutant', INTERMEDIAIRE:'Intermédiaire'
 }
 .brand-logo {
   width: 28px; height: 28px;
-  background:  #D4FF00;
+  background: #D4FF00;
   border-radius: 7px;
   color: white;
   font-weight: 800;
@@ -445,7 +540,7 @@ const labelDiff = (d) => ({ DEBUTANT:'Débutant', INTERMEDIAIRE:'Intermédiaire'
 }
 .nav-dot.active { background: white; width: 18px; border-radius: 3px; }
 .nav-dot.done   { background: rgba(139, 92, 246, 0.7); }
-
+ 
 /* ===== PROGRESS ===== */
 .progress-bar {
   height: 3px;
@@ -460,7 +555,22 @@ const labelDiff = (d) => ({ DEBUTANT:'Débutant', INTERMEDIAIRE:'Intermédiaire'
   border-radius: 2px;
   transition: width 0.4s ease;
 }
-
+ 
+/* ===== MULTI HINT ===== */
+.multi-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.73rem;
+  color: #D4FF00;
+  background: rgba(212, 255, 0, 0.1);
+  border: 1px solid rgba(212, 255, 0, 0.25);
+  border-radius: 20px;
+  padding: 4px 12px;
+  margin-bottom: 14px;
+  font-weight: 500;
+}
+ 
 /* ===== ACCUEIL ===== */
 .accueil-body {
   text-align: center;
@@ -482,14 +592,14 @@ const labelDiff = (d) => ({ DEBUTANT:'Débutant', INTERMEDIAIRE:'Intermédiaire'
   line-height: 1.5;
   margin: 0;
 }
-
+ 
 /* ===== QUESTION ===== */
 .question-block { animation: fadeSlide 0.3s ease; }
 @keyframes fadeSlide {
   from { opacity: 0; transform: translateX(16px); }
   to   { opacity: 1; transform: translateX(0); }
 }
-
+ 
 .question-titre {
   font-family: 'Syne', sans-serif;
   font-size: 1.15rem;
@@ -501,9 +611,9 @@ const labelDiff = (d) => ({ DEBUTANT:'Débutant', INTERMEDIAIRE:'Intermédiaire'
 .question-sub {
   font-size: 0.82rem;
   color: rgba(255,255,255,0.5);
-  margin: 0 0 20px;
+  margin: 0 0 12px;
 }
-
+ 
 /* ===== CHOIX ===== */
 .choix-grid {
   display: flex;
@@ -511,13 +621,13 @@ const labelDiff = (d) => ({ DEBUTANT:'Débutant', INTERMEDIAIRE:'Intermédiaire'
   gap: 8px;
   margin-bottom: 24px;
 }
-
+ 
 .choix-grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
 }
-
+ 
 .choix-btn {
   display: flex;
   align-items: center;
@@ -533,19 +643,19 @@ const labelDiff = (d) => ({ DEBUTANT:'Débutant', INTERMEDIAIRE:'Intermédiaire'
   width: 100%;
   color: white;
 }
-
+ 
 .choix-btn:hover {
   background: rgba(255, 255, 255, 0.12);
   border-color: rgba(255, 255, 255, 0.25);
   transform: translateY(-1px);
 }
-
+ 
 .choix-btn.selected {
   background: rgba(139, 92, 246, 0.25);
   border-color: rgba(139, 92, 246, 0.6);
   box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.4);
 }
-
+ 
 .choix-left {
   display: flex;
   align-items: center;
@@ -553,9 +663,9 @@ const labelDiff = (d) => ({ DEBUTANT:'Débutant', INTERMEDIAIRE:'Intermédiaire'
   flex: 1;
   min-width: 0;
 }
-
+ 
 .choix-icone { font-size: 1.2rem; flex-shrink: 0; }
-
+ 
 .choix-text {
   display: flex;
   flex-direction: column;
@@ -577,14 +687,14 @@ const labelDiff = (d) => ({ DEBUTANT:'Débutant', INTERMEDIAIRE:'Intermédiaire'
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
+ 
 .choix-right {
   display: flex;
   align-items: center;
   gap: 6px;
   flex-shrink: 0;
 }
-
+ 
 .choix-badge {
   font-size: 10px;
   font-weight: 700;
@@ -596,12 +706,13 @@ const labelDiff = (d) => ({ DEBUTANT:'Débutant', INTERMEDIAIRE:'Intermédiaire'
 .badge-Intermédiaire { background: rgba(251, 191, 36, 0.2); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
 .badge-Avancé        { background: rgba(248, 113, 113, 0.2); color: #f87171; border: 1px solid rgba(248,113,113,0.3); }
 .badge-Expert        { background: rgba(139, 92, 246, 0.2); color: #a78bfa; border: 1px solid rgba(139,92,246,0.3); }
-
+ 
+/* Check rond (single select) */
 .choix-check {
   width: 20px; height: 20px;
   border-radius: 50%;
-  background:  #D4FF00;
-  color: white;
+  background: #D4FF00;
+  color: #0f0524;
   font-size: 11px;
   display: flex; align-items: center; justify-content: center;
   opacity: 0;
@@ -609,7 +720,25 @@ const labelDiff = (d) => ({ DEBUTANT:'Débutant', INTERMEDIAIRE:'Intermédiaire'
   font-weight: bold;
 }
 .choix-check.visible { opacity: 1; }
-
+ 
+/* Checkbox carré (multi select) */
+.choix-checkbox {
+  width: 20px; height: 20px;
+  border-radius: 5px;
+  border: 1.5px solid rgba(255,255,255,0.25);
+  background: transparent;
+  color: #0f0524;
+  font-size: 11px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+.choix-checkbox.visible {
+  background: #D4FF00;
+  border-color: #D4FF00;
+}
+ 
 /* ===== NAV ===== */
 .quiz-nav {
   display: flex;
@@ -622,7 +751,7 @@ const labelDiff = (d) => ({ DEBUTANT:'Débutant', INTERMEDIAIRE:'Intermédiaire'
   align-items: flex-end;
   gap: 8px;
 }
-
+ 
 /* ===== BUTTONS ===== */
 .btn-primary {
   background: linear-gradient(135deg, #D4FF00, #140F37);
@@ -652,7 +781,7 @@ const labelDiff = (d) => ({ DEBUTANT:'Débutant', INTERMEDIAIRE:'Intermédiaire'
   font-size: 1rem;
   border-radius: 14px;
 }
-
+ 
 .btn-ghost {
   background: transparent;
   color: rgba(255,255,255,0.5);
@@ -666,7 +795,7 @@ const labelDiff = (d) => ({ DEBUTANT:'Débutant', INTERMEDIAIRE:'Intermédiaire'
   width: 100%;
 }
 .btn-ghost:hover { color: rgba(255,255,255,0.8); }
-
+ 
 .btn-ghost-sm {
   background: transparent;
   color: rgba(255,255,255,0.5);
@@ -678,7 +807,7 @@ const labelDiff = (d) => ({ DEBUTANT:'Débutant', INTERMEDIAIRE:'Intermédiaire'
   transition: color 0.2s;
 }
 .btn-ghost-sm:hover { color: rgba(255,255,255,0.8); }
-
+ 
 .btn-skip {
   background: none;
   border: none;
@@ -689,7 +818,7 @@ const labelDiff = (d) => ({ DEBUTANT:'Débutant', INTERMEDIAIRE:'Intermédiaire'
   transition: color 0.2s;
 }
 .btn-skip:hover { color: rgba(255,255,255,0.6); }
-
+ 
 /* ===== RÉSULTATS ===== */
 .profil-header {
   text-align: center;
@@ -716,13 +845,13 @@ const labelDiff = (d) => ({ DEBUTANT:'Débutant', INTERMEDIAIRE:'Intermédiaire'
   color: rgba(255,255,255,0.5);
   margin: 0;
 }
-
+ 
 .profil-info {
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 16px;
   padding: 18px;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 .profil-avatar { font-size: 2.5rem; margin-bottom: 8px; }
 .profil-info h3 {
@@ -747,7 +876,44 @@ const labelDiff = (d) => ({ DEBUTANT:'Débutant', INTERMEDIAIRE:'Intermédiaire'
   padding: 3px 10px;
   border-radius: 20px;
 }
-
+ 
+/* ===== RÉCAP MULTI ===== */
+.recap-multi {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.recap-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.recap-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: rgba(255,255,255,0.35);
+  font-weight: 600;
+}
+.recap-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.recap-tag {
+  font-size: 11px;
+  background: rgba(212, 255, 0, 0.1);
+  color: #D4FF00;
+  border: 1px solid rgba(212, 255, 0, 0.2);
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+ 
 /* ===== RECO ===== */
 .recommandations { margin-bottom: 20px; }
 .recommandations h3 {
@@ -759,9 +925,9 @@ const labelDiff = (d) => ({ DEBUTANT:'Débutant', INTERMEDIAIRE:'Intermédiaire'
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
-
+ 
 .reco-list { display: flex; flex-direction: column; gap: 8px; }
-
+ 
 .reco-item {
   display: flex;
   align-items: center;
@@ -778,7 +944,7 @@ const labelDiff = (d) => ({ DEBUTANT:'Débutant', INTERMEDIAIRE:'Intermédiaire'
   border-color: rgba(255,255,255,0.18);
   transform: translateX(3px);
 }
-
+ 
 .reco-icon {
   width: 36px; height: 36px;
   border-radius: 9px;
@@ -786,7 +952,7 @@ const labelDiff = (d) => ({ DEBUTANT:'Débutant', INTERMEDIAIRE:'Intermédiaire'
   font-size: 16px;
   flex-shrink: 0;
 }
-
+ 
 .reco-text {
   flex: 1;
   min-width: 0;
@@ -806,7 +972,7 @@ const labelDiff = (d) => ({ DEBUTANT:'Débutant', INTERMEDIAIRE:'Intermédiaire'
   font-size: 0.73rem;
   color: rgba(255,255,255,0.4);
 }
-
+ 
 .reco-type-badge {
   font-size: 10px;
   font-weight: 700;
@@ -816,7 +982,7 @@ const labelDiff = (d) => ({ DEBUTANT:'Débutant', INTERMEDIAIRE:'Intermédiaire'
   white-space: nowrap;
   flex-shrink: 0;
 }
-
+ 
 /* Loading */
 .loading-state {
   text-align: center;
@@ -833,14 +999,14 @@ const labelDiff = (d) => ({ DEBUTANT:'Débutant', INTERMEDIAIRE:'Intermédiaire'
   margin: 0 auto 10px;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
-
+ 
 .empty-state {
   text-align: center;
   padding: 20px;
   color: rgba(255,255,255,0.4);
   font-size: 0.85rem;
 }
-
+ 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 520px) {
   .quiz-page { padding: 16px; align-items: flex-start; }

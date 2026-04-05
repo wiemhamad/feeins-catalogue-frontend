@@ -22,16 +22,17 @@
           </button>
         </div>
 
+        <!-- Niveau : multi-select -->
         <div class="sidebar-block">
-          <h3>Niveau</h3>
+          <h3>Niveau <span class="multi-badge">multi</span></h3>
           <div class="filter-group">
             <button
               v-for="niveau in niveauxFiltres"
               :key="String(niveau.value)"
               type="button"
               class="filter-checkbox"
-              :class="{ active: filtres.niveauId === niveau.value }"
-              @click="setFiltre('niveauId', niveau.value)"
+              :class="{ active: niveau.value === null ? filtres.niveauIds.length === 0 : filtres.niveauIds.includes(niveau.value) }"
+              @click="toggleMultiFiltre('niveauIds', niveau.value)"
             >
               <span class="checkbox"></span>
               {{ niveau.label }}
@@ -39,16 +40,17 @@
           </div>
         </div>
 
+        <!-- Type de contenu : multi-select -->
         <div class="sidebar-block">
-          <h3>Type de contenu</h3>
+          <h3>Type de contenu <span class="multi-badge">multi</span></h3>
           <div class="filter-group">
             <button
               v-for="type in typesFiltres"
               :key="String(type.value)"
               type="button"
               class="filter-checkbox"
-              :class="{ active: filtres.typeSupport === type.value }"
-              @click="setFiltre('typeSupport', type.value)"
+              :class="{ active: type.value === null ? filtres.typeSupports.length === 0 : filtres.typeSupports.includes(type.value) }"
+              @click="toggleMultiFiltre('typeSupports', type.value)"
             >
               <span class="checkbox"></span>
               {{ type.label }}
@@ -66,7 +68,6 @@
           </div>
 
           <div class="toolbar-right">
-      
             <div class="search-wrapper">
               <input
                 v-model="keyword"
@@ -87,14 +88,26 @@
 
         <!-- Active Filters Display -->
         <div v-if="hasActiveFilters" class="active-filters">
-          <div class="filter-tag" v-if="filtres.niveauId">
-            Niveau: <strong>{{ getActiveNiveauLabel }}</strong>
-            <button @click="setFiltre('niveauId', null)" class="tag-remove">✕</button>
-          </div>
-          <div class="filter-tag" v-if="filtres.typeSupport">
-            Type: <strong>{{ getActivetypeLabel }}</strong>
-            <button @click="setFiltre('typeSupport', null)" class="tag-remove">✕</button>
-          </div>
+          <template v-if="filtres.niveauIds.length > 0">
+            <div
+              v-for="id in filtres.niveauIds"
+              :key="'n-' + id"
+              class="filter-tag"
+            >
+              Niveau: <strong>{{ getLabelNiveau(id) }}</strong>
+              <button @click="toggleMultiFiltre('niveauIds', id)" class="tag-remove">✕</button>
+            </div>
+          </template>
+          <template v-if="filtres.typeSupports.length > 0">
+            <div
+              v-for="t in filtres.typeSupports"
+              :key="'t-' + t"
+              class="filter-tag"
+            >
+              Type: <strong>{{ getLabelType(t) }}</strong>
+              <button @click="toggleMultiFiltre('typeSupports', t)" class="tag-remove">✕</button>
+            </div>
+          </template>
           <div class="filter-tag" v-if="keyword">
             Mot-clé: <strong>"{{ keyword }}"</strong>
             <button @click="keyword = ''; charger()" class="tag-remove">✕</button>
@@ -140,9 +153,11 @@ const niveaux = ref([])
 const loading = ref(true)
 const keyword = ref('')
 const tri = ref('pertinence')
+
+// Les filtres multi-sélection sont des tableaux
 const filtres = ref({
-  niveauId: null,
-  typeSupport: null
+  niveauIds: [],
+  typeSupports: []
 })
 
 let searchTimer = null
@@ -156,56 +171,70 @@ const niveauxFiltres = computed(() => [
 ])
 
 const typesFiltres = [
-  { value: null, label: 'Tous les types' },
-  { value: 'VIDEO', label: 'Video' },
-  { value: 'QUIZ', label: 'Quiz' },
-  { value: 'H5P', label: 'H5P (Interactif)' },
-  { value: 'PDF', label: 'PDF' }
+  { value: null,    label: 'Tous les types' },
+  { value: 'VIDEO', label: 'Vidéo' },
+  { value: 'QUIZ',  label: 'Quiz' },
+  { value: 'H5P',   label: 'H5P (Interactif)' },
+  { value: 'PDF',   label: 'PDF' }
 ]
 
 const total = computed(() => ressources.value.length)
 
-const hasActiveFilters = computed(() => {
-  return filtres.value.niveauId !== null || 
-         filtres.value.typeSupport !== null || 
-         keyword.value.trim() !== ''
-})
+const hasActiveFilters = computed(() =>
+  filtres.value.niveauIds.length > 0 ||
+  filtres.value.typeSupports.length > 0 ||
+  keyword.value.trim() !== ''
+)
 
-const getActiveNiveauLabel = computed(() => {
-  const niveau = niveaux.value.find(n => n.id === filtres.value.niveauId)
-  return niveau?.nom || ''
-})
+const getLabelNiveau = (id) => niveaux.value.find(n => n.id === id)?.nom || id
+const getLabelType   = (v) => typesFiltres.find(t => t.value === v)?.label || v
 
-const getActivetypeLabel = computed(() => {
-  const type = typesFiltres.find(t => t.value === filtres.value.typeSupport)
-  return type?.label || ''
-})
+// Toggle dans un tableau de filtres.
+// Si value === null → "Tous" → vide le tableau
+const toggleMultiFiltre = (key, value) => {
+  if (value === null) {
+    filtres.value[key] = []
+  } else {
+    const arr = filtres.value[key]
+    const idx = arr.indexOf(value)
+    if (idx === -1) {
+      filtres.value[key] = [...arr, value]
+    } else {
+      filtres.value[key] = arr.filter(v => v !== value)
+    }
+  }
+  charger()
+}
 
 const chargerNiveaux = async () => {
   try {
     const response = await api.get('/api/niveaux')
     niveaux.value = response.data || []
-  } catch (error) {
+  } catch {
     niveaux.value = []
   }
 }
 
 const charger = async () => {
   loading.value = true
-
   try {
     const payload = {}
 
-    if (keyword.value.trim()) {
-      payload.keyword = keyword.value.trim()
+    if (keyword.value.trim()) payload.keyword = keyword.value.trim()
+
+    // On envoie les tableaux si non vides ; fallback scalaire pour les API qui ne supportent pas les tableaux
+    if (filtres.value.niveauIds.length === 1) {
+      payload.niveauId  = filtres.value.niveauIds[0]
+      payload.niveauIds = filtres.value.niveauIds
+    } else if (filtres.value.niveauIds.length > 1) {
+      payload.niveauIds = filtres.value.niveauIds
     }
 
-    if (filtres.value.niveauId) {
-      payload.niveauId = filtres.value.niveauId
-    }
-
-    if (filtres.value.typeSupport) {
-      payload.typeSupport = filtres.value.typeSupport
+    if (filtres.value.typeSupports.length === 1) {
+      payload.typeSupport  = filtres.value.typeSupports[0]
+      payload.typeSupports = filtres.value.typeSupports
+    } else if (filtres.value.typeSupports.length > 1) {
+      payload.typeSupports = filtres.value.typeSupports
     }
 
     const response = Object.keys(payload).length > 0
@@ -214,7 +243,7 @@ const charger = async () => {
 
     ressources.value = response.data || []
     appliquerTriLocal()
-  } catch (error) {
+  } catch {
     ressources.value = []
   } finally {
     loading.value = false
@@ -226,11 +255,6 @@ onMounted(async () => {
   await charger()
 })
 
-const setFiltre = (key, value) => {
-  filtres.value[key] = filtres.value[key] === value ? null : value
-  charger()
-}
-
 const onSearch = () => {
   clearTimeout(searchTimer)
   searchTimer = setTimeout(charger, 350)
@@ -239,10 +263,7 @@ const onSearch = () => {
 const resetFiltres = () => {
   keyword.value = ''
   tri.value = 'pertinence'
-  filtres.value = {
-    niveauId: null,
-    typeSupport: null
-  }
+  filtres.value = { niveauIds: [], typeSupports: [] }
   charger()
 }
 
@@ -251,12 +272,10 @@ const appliquerTriLocal = () => {
     ressources.value = [...ressources.value].sort((a, b) => (a.dureeMinutes || 0) - (b.dureeMinutes || 0))
     return
   }
-
   if (tri.value === 'recent') {
     ressources.value = [...ressources.value].sort(
       (a, b) => new Date(b.dateCreation || 0) - new Date(a.dateCreation || 0)
     )
-    return
   }
 }
 </script>
@@ -298,35 +317,12 @@ const appliquerTriLocal = () => {
   opacity: 0.3;
 }
 
-.glow-left {
-  left: -100px;
-  top: 50px;
-  background: rgba(255, 255, 255, 0.3);
-}
+.glow-left  { left: -100px; top: 50px;    background: rgba(255,255,255,0.3); }
+.glow-right { right: -50px; bottom: 100px; background: rgba(255,255,255,0.2); }
 
-.glow-right {
-  right: -50px;
-  bottom: 100px;
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.hero-content {
-  position: relative;
-  z-index: 1;
-}
-
-.hero-content h1 {
-  margin: 0 0 16px;
-  font-size: 2.5rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-}
-
-.hero-content p {
-  margin: 0;
-  font-size: 1.1rem;
-  opacity: 0.95;
-}
+.hero-content { position: relative; z-index: 1; }
+.hero-content h1 { margin: 0 0 16px; font-size: 2.5rem; font-weight: 800; letter-spacing: -0.02em; }
+.hero-content p  { margin: 0; font-size: 1.1rem; opacity: 0.95; }
 
 /* Main Layout */
 .catalogue-layout {
@@ -348,7 +344,7 @@ const appliquerTriLocal = () => {
   border: 1px solid #e5e7eb;
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
 .sidebar-header {
@@ -360,12 +356,7 @@ const appliquerTriLocal = () => {
   border-bottom: 2px solid #f3f4f6;
 }
 
-.sidebar-header h2 {
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #1f2937;
-}
+.sidebar-header h2 { margin: 0; font-size: 1.1rem; font-weight: 700; color: #1f2937; }
 
 .clear-all-btn {
   padding: 4px 10px;
@@ -376,86 +367,85 @@ const appliquerTriLocal = () => {
   border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
-  transition: all 0.2s ease;
+  transition: all 0.2s;
 }
+.clear-all-btn:hover { background: #fecaca; }
 
-.clear-all-btn:hover {
-  background: #fecaca;
-}
-
-.sidebar-block {
-  margin-bottom: 20px;
-}
+.sidebar-block { margin-bottom: 20px; }
 
 .sidebar-block h3 {
   margin: 0 0 12px;
   font-size: 0.95rem;
   font-weight: 700;
   color: #374151;
-}
-
-.filter-group {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: 8px;
 }
+
+/* Badge "multi" affiché dans le titre de section */
+.multi-badge {
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(99, 102, 241, 0.1);
+  color: #6366f1;
+  border: 1px solid rgba(99,102,241,0.25);
+  padding: 2px 7px;
+  border-radius: 20px;
+  letter-spacing: 0.3px;
+}
+
+.filter-group { display: flex; flex-direction: column; gap: 6px; }
 
 .filter-checkbox {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 12px;
+  padding: 9px 12px;
   border: 1px solid transparent;
   background: transparent;
   border-radius: 8px;
   cursor: pointer;
   color: #6b7280;
-  font-size: 0.9rem;
-  transition: all 0.2s ease;
+  font-size: 0.88rem;
+  transition: all 0.2s;
   text-align: left;
+  width: 100%;
 }
 
-.filter-checkbox:hover {
-  background: #f9fafb;
-  color: #374151;
-}
+.filter-checkbox:hover { background: #f9fafb; color: #374151; }
 
+/* Style quand coché (actif) */
 .filter-checkbox.active {
   background: linear-gradient(135deg, #dbeafe, #e9d5ff);
   color: #6366f1;
   font-weight: 600;
-  border-color: #6366f1;
+  border-color: #a5b4fc;
 }
 
+/* La checkbox visuelle — carré par défaut, aspect "multi" */
 .checkbox {
-  width: 18px;
-  height: 18px;
+  width: 17px;
+  height: 17px;
   border: 2px solid #d1d5db;
-  border-radius: 6px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: all 0.2s ease;
+  transition: all 0.2s;
 }
 
 .filter-checkbox.active .checkbox {
   background: linear-gradient(135deg, #6366f1, #8b5cf6);
   border-color: #6366f1;
   color: white;
-  font-size: 12px;
+  font-size: 11px;
 }
-
-.filter-checkbox.active .checkbox::after {
-  content: '✓';
-}
+.filter-checkbox.active .checkbox::after { content: '✓'; }
 
 /* Content Section */
-.catalogue-content {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
+.catalogue-content { display: flex; flex-direction: column; gap: 20px; }
 
 .catalogue-toolbar {
   display: flex;
@@ -465,18 +455,8 @@ const appliquerTriLocal = () => {
   flex-wrap: wrap;
 }
 
-.toolbar-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.toolbar-left h2 {
-  margin: 0;
-  font-size: 1.6rem;
-  font-weight: 800;
-  color: #D4FF00;
-}
+.toolbar-left { display: flex; align-items: center; gap: 12px; }
+.toolbar-left h2 { margin: 0; font-size: 1.6rem; font-weight: 800; color: #D4FF00; }
 
 .resource-count {
   padding: 6px 12px;
@@ -487,32 +467,9 @@ const appliquerTriLocal = () => {
   font-weight: 600;
 }
 
-.toolbar-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
+.toolbar-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 
-.creator-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 40px;
-  padding: 0 14px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #0f766e, #0ea5e9);
-  color: white;
-  font-size: 0.9rem;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.search-wrapper {
-  position: relative;
-  flex: 1;
-  min-width: 220px;
-}
+.search-wrapper { position: relative; flex: 1; min-width: 220px; }
 
 .search-input {
   width: 100%;
@@ -523,14 +480,9 @@ const appliquerTriLocal = () => {
   background: white;
   color: #1f2937;
   font-size: 0.9rem;
-  transition: all 0.2s ease;
+  transition: all 0.2s;
 }
-
-.search-input:focus {
-  outline: none;
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-}
+.search-input:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
 
 .sort-select {
   min-height: 40px;
@@ -541,18 +493,10 @@ const appliquerTriLocal = () => {
   color: #1f2937;
   font-size: 0.9rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s;
 }
-
-.sort-select:hover {
-  border-color: #d1d5db;
-}
-
-.sort-select:focus {
-  outline: none;
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-}
+.sort-select:hover  { border-color: #d1d5db; }
+.sort-select:focus  { outline: none; border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
 
 /* Active Filters */
 .active-filters {
@@ -576,10 +520,7 @@ const appliquerTriLocal = () => {
   font-size: 0.85rem;
   color: #0369a1;
 }
-
-.filter-tag strong {
-  font-weight: 700;
-}
+.filter-tag strong { font-weight: 700; }
 
 .tag-remove {
   display: flex;
@@ -593,13 +534,9 @@ const appliquerTriLocal = () => {
   cursor: pointer;
   padding: 0;
   font-size: 1rem;
-  transition: all 0.2s ease;
+  transition: all 0.2s;
 }
-
-.tag-remove:hover {
-  color: #0369a1;
-  scale: 1.2;
-}
+.tag-remove:hover { color: #0369a1; scale: 1.2; }
 
 /* Cards Shell */
 .cards-shell {
@@ -615,15 +552,11 @@ const appliquerTriLocal = () => {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.18), transparent 18%),
-    radial-gradient(circle at 25% 30%, rgba(255, 255, 255, 0.12), transparent 12%);
+    radial-gradient(circle at 80% 70%, rgba(255,255,255,0.18), transparent 18%),
+    radial-gradient(circle at 25% 30%, rgba(255,255,255,0.12), transparent 12%);
 }
 
-.resource-grid,
-.state-panel {
-  position: relative;
-  z-index: 1;
-}
+.resource-grid, .state-panel { position: relative; z-index: 1; }
 
 .resource-grid {
   display: grid;
@@ -636,15 +569,13 @@ const appliquerTriLocal = () => {
   place-items: center;
   min-height: 260px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255,255,255,0.95);
   color: #6b7280;
   text-align: center;
   padding: 40px 20px;
 }
 
-.state-panel.loading {
-  font-weight: 500;
-}
+.state-panel.loading { font-weight: 500; }
 
 .loader {
   width: 40px;
@@ -655,111 +586,36 @@ const appliquerTriLocal = () => {
   animation: spin 0.8s linear infinite;
   margin-bottom: 16px;
 }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
+.state-panel h3 { margin: 0 0 8px; color: #1f2937; font-size: 1.2rem; }
+.state-panel p  { margin: 0; color: #9ca3af; font-size: 0.95rem; }
 
-.state-panel.empty {
-  flex-direction: column;
-}
-
-.state-panel h3 {
-  margin: 0 0 8px;
-  color: #1f2937;
-  font-size: 1.2rem;
-}
-
-.state-panel p {
-  margin: 0;
-  color: #9ca3af;
-  font-size: 0.95rem;
-}
-
-/* Responsive Design */
+/* Responsive */
 @media (max-width: 1024px) {
-  .catalogue-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .sidebar {
-    position: static;
-  }
-
-  .hero-content h1 {
-    font-size: 2rem;
-  }
+  .catalogue-layout { grid-template-columns: 1fr; }
+  .sidebar { position: static; }
+  .hero-content h1 { font-size: 2rem; }
 }
 
 @media (max-width: 768px) {
-  .catalogue-layout {
-    padding: 24px 16px;
-    gap: 20px;
-  }
-
-  .catalogue-toolbar {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .toolbar-right {
-    flex-direction: column;
-  }
-
-  .search-wrapper,
-  .sort-select {
-    width: 100%;
-  }
-
-  .resource-grid {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 12px;
-  }
-
-  .hero-section {
-    min-height: 240px;
-    padding: 60px 20px;
-  }
-
-  .hero-content h1 {
-    font-size: 1.5rem;
-  }
-
-  .hero-content p {
-    font-size: 0.95rem;
-  }
+  .catalogue-layout { padding: 24px 16px; gap: 20px; }
+  .catalogue-toolbar { flex-direction: column; align-items: stretch; }
+  .toolbar-right { flex-direction: column; }
+  .search-wrapper, .sort-select { width: 100%; }
+  .resource-grid { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+  .hero-section { min-height: 240px; padding: 60px 20px; }
+  .hero-content h1 { font-size: 1.5rem; }
+  .hero-content p { font-size: 0.95rem; }
 }
 
 @media (max-width: 480px) {
-  .catalogue-layout {
-    padding: 16px;
-  }
-
-  .toolbar-left h2 {
-    font-size: 1.3rem;
-  }
-
-  .resource-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .sidebar-block h3 {
-    font-size: 0.85rem;
-  }
-
-  .filter-checkbox {
-    font-size: 0.8rem;
-    padding: 8px 10px;
-  }
-
-  .active-filters {
-    gap: 6px;
-    padding: 10px;
-  }
-
-  .filter-tag {
-    font-size: 0.75rem;
-    padding: 4px 10px;
-  }
+  .catalogue-layout { padding: 16px; }
+  .toolbar-left h2 { font-size: 1.3rem; }
+  .resource-grid { grid-template-columns: 1fr; }
+  .sidebar-block h3 { font-size: 0.85rem; }
+  .filter-checkbox { font-size: 0.8rem; padding: 8px 10px; }
+  .active-filters { gap: 6px; padding: 10px; }
+  .filter-tag { font-size: 0.75rem; padding: 4px 10px; }
 }
 </style>

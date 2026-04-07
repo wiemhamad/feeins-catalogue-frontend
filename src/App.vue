@@ -16,7 +16,7 @@
         <div class="nav-links">
           <RouterLink to="/">Accueil</RouterLink>
           <RouterLink to="/catalogue">Catalogue</RouterLink>
-          <RouterLink to="/quiz">Quiz</RouterLink>
+          <RouterLink to="/quiz">Test de profilage</RouterLink>
 
           <!-- CONTRIBUTEUR : accès à son espace de création de ressources -->
           <RouterLink

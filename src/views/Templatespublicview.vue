@@ -72,6 +72,8 @@
               v-for="t in templatesFiltres"
               :key="t.id"
               class="template-card"
+              style="cursor:pointer"
+              @click="router.push('/templates/' + t.id)"
             >
               <!-- BADGE type -->
               <div class="card-top">
@@ -105,7 +107,7 @@
               <!-- FOOTER -->
               <div class="card-footer">
                 <span class="card-meta">{{ t.ressources?.length || 0 }} ressource(s)</span>
-                <RouterLink to="/catalogue" class="card-link">Explorer le catalogue →</RouterLink>
+                <span class="card-link" @click.stop="router.push('/templates/' + t.id)">Voir les ressources →</span>
               </div>
             </article>
           </div>
@@ -118,9 +120,11 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import api from '@/api/axios'
 
 const templates = ref([])
+const router = useRouter()
 const loading = ref(true)
 const recherche = ref('')
 const filtreType = ref('')  // '' | 'modifiable' | 'locked'

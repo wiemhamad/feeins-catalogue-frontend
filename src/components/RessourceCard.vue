@@ -4,9 +4,15 @@
     <!-- TOP : type + difficulté -->
     <div class="card-top">
       <span class="type-badge" :class="'type-' + ressource.typeSupport?.toLowerCase()">
-        {{ iconeType(ressource.typeSupport) }} {{ ressource.typeSupport }}
+        <span class="type-icon-shape" :class="'shape-' + ressource.typeSupport?.toLowerCase()"></span>
+        {{ ressource.typeSupport }}
       </span>
       <span v-if="ressource.difficulte" class="diff-badge" :class="diffClass(ressource.difficulte)">
+        <span class="diff-dots">
+          <span class="diff-dot" :class="{ active: true }"></span>
+          <span class="diff-dot" :class="{ active: ['INTERMEDIAIRE','AVANCE'].includes(ressource.difficulte) }"></span>
+          <span class="diff-dot" :class="{ active: ressource.difficulte === 'AVANCE' }"></span>
+        </span>
         {{ labelDiff(ressource.difficulte) }}
       </span>
     </div>
@@ -21,20 +27,33 @@
 
     <!-- MÉTA : niveau + thématique -->
     <div class="card-meta-row">
-      <span v-if="ressource.niveauNom" class="meta-chip meta-niveau">🎓 {{ ressource.niveauNom }}</span>
-      <span v-if="ressource.thematiqueNom" class="meta-chip meta-theme">📂 {{ ressource.thematiqueNom }}</span>
+      <span v-if="ressource.niveauNom" class="meta-chip meta-niveau">
+        <svg class="chip-icon" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="5" cy="3.2" r="1.8" stroke="currentColor" stroke-width="1.2"/>
+          <path d="M1 9.2c0-2 1.8-3.2 4-3.2s4 1.2 4 3.2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+        {{ ressource.niveauNom }}
+      </span>
+      <span v-if="ressource.thematiqueNom" class="meta-chip meta-theme">
+        <svg class="chip-icon" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1 2.5C1 1.7 1.7 1 2.5 1H4l1 1.5H9C9 2.5 9 3 9 3v5.5C9 9.3 8.3 9 7.5 9h-5C1.7 9 1 8.3 1 7.5V2.5Z" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/>
+        </svg>
+        {{ ressource.thematiqueNom }}
+      </span>
     </div>
 
     <!-- TAGS -->
     <div v-if="ressource.tags?.length" class="card-tags">
-      <span v-for="tag in ressource.tags.slice(0, maxTags)" :key="tag" class="tag">#{{ tag }}</span>
+      <span v-for="tag in ressource.tags.slice(0, maxTags)" :key="tag" class="tag">{{ tag }}</span>
       <span v-if="ressource.tags.length > maxTags" class="tag tag-more">+{{ ressource.tags.length - maxTags }}</span>
     </div>
 
     <!-- FOOTER : durée + lien -->
     <div class="card-footer">
       <span class="card-duree">
-        <span class="duree-icon">⏱</span>
+        <span class="duree-bars">
+          <span></span><span></span><span></span>
+        </span>
         {{ ressource.dureeMinutes ? ressource.dureeMinutes + ' min' : '—' }}
       </span>
       <a
@@ -45,7 +64,10 @@
         class="card-link"
         @click.stop
       >
-        {{ actionLabel }} →
+        {{ actionLabel }}
+        <svg class="link-arrow" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M2 5h6M5.5 2.5L8 5l-2.5 2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
       </a>
       <span v-else class="card-link card-link-off">Non disponible</span>
     </div>
@@ -54,7 +76,6 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
 import { diffClass, labelDiff } from '@/utils/ressource-ui'
 
 const props = defineProps({
@@ -64,9 +85,6 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['click'])
-
-const iconeType = (t) =>
-  ({ VIDEO: '🎥', H5P: '🎮', PDF: '📄', QUIZ: '❓', HTML: '🌐', LIEN: '🔗', AUTRE: '📦' }[t] || '📦')
 
 const ouvrirRessource = () => emit('click', props.ressource)
 </script>
@@ -114,6 +132,9 @@ const ouvrirRessource = () => emit('click', props.ressource)
 }
 
 .type-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
   padding: 3px 10px;
   border-radius: 999px;
   font-size: 0.68rem;
@@ -129,7 +150,58 @@ const ouvrirRessource = () => emit('click', props.ressource)
 .type-lien  { background: #1abc9c; }
 .type-autre { background: #7f8c8d; }
 
+/* Petite icône de forme selon le type */
+.type-icon-shape {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+.shape-video {
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+  background: white;
+}
+.shape-pdf {
+  border: 1.5px solid white;
+  border-radius: 1px;
+}
+.shape-quiz {
+  width: 7px;
+  height: 7px;
+  border: 1.5px solid white;
+  border-radius: 50%;
+}
+.shape-h5p {
+  background: white;
+  border-radius: 1px;
+  transform: rotate(45deg);
+}
+.shape-html {
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-bottom: 7px solid white;
+  background: transparent;
+}
+.shape-lien {
+  width: 8px;
+  height: 2px;
+  background: white;
+  border-radius: 1px;
+  position: relative;
+}
+.shape-autre {
+  background: white;
+  border-radius: 1px;
+}
+
+/* Difficulté */
 .diff-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
   padding: 3px 9px;
   border-radius: 999px;
   font-size: 0.66rem;
@@ -138,6 +210,22 @@ const ouvrirRessource = () => emit('click', props.ressource)
 .diff-green  { background: #dcfce7; color: #15803d; }
 .diff-orange { background: #fef3c7; color: #b45309; }
 .diff-red    { background: #fee2e2; color: #b91c1c; }
+
+.diff-dots {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+}
+.diff-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.2;
+}
+.diff-dot.active {
+  opacity: 1;
+}
 
 /* TITRE */
 .card-title {
@@ -164,10 +252,18 @@ const ouvrirRessource = () => emit('click', props.ressource)
   gap: 6px;
 }
 .meta-chip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   padding: 3px 9px;
   border-radius: 6px;
   font-size: 0.7rem;
   font-weight: 600;
+}
+.chip-icon {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
 }
 .meta-niveau { background: #eff6ff; color: #1d4ed8; }
 .meta-theme  { background: #f5f3ff; color: #6d28d9; }
@@ -186,7 +282,16 @@ const ouvrirRessource = () => emit('click', props.ressource)
   font-size: 0.67rem;
   font-weight: 500;
 }
-.tag-more { background: #e2e8f0; color: #64748b; }
+.tag::before {
+  content: '#';
+  opacity: 0.45;
+  margin-right: 1px;
+}
+.tag-more {
+  background: #e2e8f0;
+  color: #64748b;
+}
+.tag-more::before { content: ''; }
 
 /* FOOTER */
 .card-footer {
@@ -202,13 +307,31 @@ const ouvrirRessource = () => emit('click', props.ressource)
 .card-duree {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   color: #94a3b8;
   font-size: 0.75rem;
 }
-.duree-icon { font-size: 0.8rem; }
+
+.duree-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 10px;
+}
+.duree-bars span {
+  display: block;
+  width: 3px;
+  background: #cbd5e1;
+  border-radius: 1px;
+}
+.duree-bars span:nth-child(1) { height: 5px; }
+.duree-bars span:nth-child(2) { height: 9px; }
+.duree-bars span:nth-child(3) { height: 7px; }
 
 .card-link {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   color: #6366f1;
   font-size: 0.75rem;
   font-weight: 800;
@@ -217,4 +340,10 @@ const ouvrirRessource = () => emit('click', props.ressource)
 }
 .card-link:hover { opacity: 0.75; }
 .card-link-off { color: #cbd5e1; cursor: not-allowed; }
+
+.link-arrow {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
 </style>

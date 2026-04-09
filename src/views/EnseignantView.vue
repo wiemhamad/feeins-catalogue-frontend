@@ -3,7 +3,7 @@
 
     <section class="enseignant-hero">
       <div>
-        <span class="hero-kicker">👨‍🏫 Espace Enseignant</span>
+        <span class="hero-kicker">Espace Enseignant</span>
         <h1>Créez et gérez vos templates pédagogiques</h1>
         <p>Composez des <strong>templates</strong> à partir de ressources validées existantes. Cliquez sur un template pour voir ses ressources.</p>
       </div>
@@ -38,28 +38,42 @@
           <div class="form-group">
             <label>Type</label>
             <select v-model="form.modifiable">
-              <option :value="true">🔓 Modifiable</option>
-              <option :value="false">🔒 Clé en main</option>
+              <option :value="true">Modifiable</option>
+              <option :value="false">Clé en main</option>
             </select>
           </div>
 
           <!-- SÉLECTION DES RESSOURCES VALIDÉES -->
           <div class="form-group">
-            <label>📚 Ressources à associer</label>
+            <label>Ressources à associer</label>
             <div class="ressources-search-bar">
-              <input v-model="rechercheRessource" type="text" placeholder="🔍 Filtrer les ressources..." class="ressources-search" />
+              <div class="search-wrapper">
+                <svg class="search-icon" viewBox="0 0 20 20" fill="none">
+                  <circle cx="9" cy="9" r="6" stroke="#94a3b8" stroke-width="1.8"/>
+                  <path d="M13.5 13.5L17 17" stroke="#94a3b8" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+                <input v-model="rechercheRessource" type="text" placeholder="Filtrer les ressources..." class="ressources-search" />
+              </div>
               <select v-model="filtreType" class="ressources-filtre">
                 <option value="">Tous types</option>
-                <option value="VIDEO">🎥 Vidéo</option><option value="H5P">🎮 H5P</option>
-                <option value="PDF">📄 PDF</option><option value="QUIZ">❓ Quiz</option>
+                <option value="VIDEO">Vidéo</option>
+                <option value="H5P">H5P</option>
+                <option value="PDF">PDF</option>
+                <option value="QUIZ">Quiz</option>
               </select>
             </div>
             <div class="ressources-list" v-if="ressourcesFiltrees.length">
-              <div v-for="r in ressourcesFiltrees" :key="r.id" class="ressource-item"
+              <div
+                v-for="r in ressourcesFiltrees"
+                :key="r.id"
+                class="ressource-item"
                 :class="{ selected: form.ressourceIds.includes(r.id) }"
-                @click="toggleRessource(r.id)">
+                @click="toggleRessource(r.id)"
+              >
                 <div class="ressource-item-left">
-                  <span class="res-type" :class="'res-' + r.typeSupport?.toLowerCase()">{{ iconeType(r.typeSupport) }}</span>
+                  <span class="res-type" :class="'res-' + r.typeSupport?.toLowerCase()">
+                    {{ r.typeSupport }}
+                  </span>
                   <div>
                     <div class="res-titre">{{ r.titre }}</div>
                     <div class="res-meta">
@@ -69,17 +83,21 @@
                     </div>
                   </div>
                 </div>
-                <div class="check-icon">{{ form.ressourceIds.includes(r.id) ? '✅' : '⬜' }}</div>
+                <div class="check-box" :class="{ checked: form.ressourceIds.includes(r.id) }">
+                  <span v-if="form.ressourceIds.includes(r.id)" class="check-mark">&#10003;</span>
+                </div>
               </div>
             </div>
             <div v-else class="ressources-empty">Aucune ressource validée trouvée.</div>
-            <div v-if="form.ressourceIds.length" class="selection-info">{{ form.ressourceIds.length }} ressource(s) sélectionnée(s)</div>
+            <div v-if="form.ressourceIds.length" class="selection-info">
+              {{ form.ressourceIds.length }} ressource(s) sélectionnée(s)
+            </div>
           </div>
 
           <div class="form-actions">
             <button type="button" class="btn-secondary" @click="resetForm">Vider</button>
             <button type="submit" class="btn-primary" :disabled="saving">
-              {{ saving ? 'Création...' : '📋 Créer le template' }}
+              {{ saving ? 'Création...' : 'Créer le template' }}
             </button>
           </div>
         </form>
@@ -92,28 +110,36 @@
             <h2>Mes templates</h2>
             <p>Cliquez sur un template pour voir ses ressources associées.</p>
           </div>
-          <button class="refresh-btn" @click="chargerTemplates" :disabled="loading">{{ loading ? '...' : '↻' }}</button>
+          <button class="refresh-btn" @click="chargerTemplates" :disabled="loading">
+            {{ loading ? '...' : '&#8635;' }}
+          </button>
         </div>
 
         <div v-if="loading" class="empty-state">Chargement...</div>
-        <div v-else-if="templates.length === 0" class="empty-state">Vous n'avez pas encore créé de template.</div>
+        <div v-else-if="templates.length === 0" class="empty-state">
+          Vous n'avez pas encore créé de template.
+        </div>
 
         <div v-else class="template-list">
-          <div v-for="t in templates" :key="t.id" class="template-card"
+          <div
+            v-for="t in templates"
+            :key="t.id"
+            class="template-card"
             :class="{ 'template-card-active': templateSelectionne?.id === t.id }"
-            @click="selectionnerTemplate(t)">
+            @click="selectionnerTemplate(t)"
+          >
             <div class="template-card-top">
               <span class="modif-pill" :class="t.modifiable ? 'modif-yes' : 'modif-no'">
-                {{ t.modifiable ? '🔓 Modifiable' : '🔒 Clé en main' }}
+                {{ t.modifiable ? 'Modifiable' : 'Clé en main' }}
               </span>
               <span class="template-meta">{{ t.ressources?.length || 0 }} ressource(s)</span>
             </div>
             <h3>{{ t.nom }}</h3>
             <p>{{ t.description || 'Aucune description.' }}</p>
             <div class="template-actions" @click.stop>
-              <button @click="modifierTemplate(t)" class="btn-edit">✏️ Modifier</button>
+              <button @click="modifierTemplate(t)" class="btn-edit">Modifier</button>
               <button @click="selectionnerTemplate(t)" class="btn-view">
-                {{ templateSelectionne?.id === t.id ? '▲ Masquer' : '▼ Voir ressources' }}
+                {{ templateSelectionne?.id === t.id ? 'Masquer' : 'Voir ressources' }}
               </button>
             </div>
 
@@ -125,7 +151,9 @@
               </div>
               <div v-else class="tr-list">
                 <div v-for="r in ressourcesTemplate" :key="r.id" class="tr-item">
-                  <span class="tr-type" :class="'res-' + r.typeSupport?.toLowerCase()">{{ iconeType(r.typeSupport) }}</span>
+                  <span class="tr-type" :class="'res-' + r.typeSupport?.toLowerCase()">
+                    {{ r.typeSupport }}
+                  </span>
                   <div class="tr-info">
                     <div class="tr-titre">{{ r.titre }}</div>
                     <div class="tr-meta">
@@ -137,7 +165,14 @@
                       <span v-for="tag in r.tags.slice(0,3)" :key="tag" class="tr-tag">#{{ tag }}</span>
                     </div>
                   </div>
-                  <a v-if="r.urlAcces && !r.urlAcces.startsWith('[')" :href="r.urlAcces" target="_blank" class="tr-link">Ouvrir →</a>
+                  <a
+                    v-if="r.urlAcces && !r.urlAcces.startsWith('[')"
+                    :href="r.urlAcces"
+                    target="_blank"
+                    class="tr-link"
+                  >
+                    Ouvrir &rarr;
+                  </a>
                 </div>
               </div>
             </div>
@@ -150,39 +185,61 @@
     <div v-if="templateEnEdition" class="modal-overlay" @click.self="templateEnEdition = null">
       <div class="modal">
         <h3>Modifier le template</h3>
-        <div class="form-group"><label>Nom</label><input v-model="templateEnEdition.nom" type="text" required /></div>
-        <div class="form-group"><label>Description</label><textarea v-model="templateEnEdition.description" rows="3"></textarea></div>
+        <div class="form-group">
+          <label>Nom</label>
+          <input v-model="templateEnEdition.nom" type="text" required />
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea v-model="templateEnEdition.description" rows="3"></textarea>
+        </div>
         <div class="form-group">
           <label>Type</label>
           <select v-model="templateEnEdition.modifiable">
-            <option :value="true">🔓 Modifiable</option><option :value="false">🔒 Clé en main</option>
+            <option :value="true">Modifiable</option>
+            <option :value="false">Clé en main</option>
           </select>
         </div>
-        <!-- Ressources dans le modal d'édition -->
         <div class="form-group" style="margin-top:8px">
-          <label>📚 Ressources associées</label>
+          <label>Ressources associées</label>
           <div class="ressources-list" style="max-height:200px">
-            <div v-for="r in ressourcesValidees" :key="r.id" class="ressource-item"
+            <div
+              v-for="r in ressourcesValidees"
+              :key="r.id"
+              class="ressource-item"
               :class="{ selected: editionRessourceIds.includes(r.id) }"
-              @click="toggleEditionRessource(r.id)">
+              @click="toggleEditionRessource(r.id)"
+            >
               <div class="ressource-item-left">
-                <span class="res-type" :class="'res-' + r.typeSupport?.toLowerCase()">{{ iconeType(r.typeSupport) }}</span>
+                <span class="res-type" :class="'res-' + r.typeSupport?.toLowerCase()">
+                  {{ r.typeSupport }}
+                </span>
                 <div>
                   <div class="res-titre">{{ r.titre }}</div>
-                  <div class="res-meta"><span v-if="r.thematiqueNom">{{ r.thematiqueNom }}</span><span v-if="r.dureeMinutes">{{ r.dureeMinutes }} min</span></div>
+                  <div class="res-meta">
+                    <span v-if="r.thematiqueNom">{{ r.thematiqueNom }}</span>
+                    <span v-if="r.dureeMinutes">{{ r.dureeMinutes }} min</span>
+                  </div>
                 </div>
               </div>
-              <div class="check-icon">{{ editionRessourceIds.includes(r.id) ? '✅' : '⬜' }}</div>
+              <div class="check-box" :class="{ checked: editionRessourceIds.includes(r.id) }">
+                <span v-if="editionRessourceIds.includes(r.id)" class="check-mark">&#10003;</span>
+              </div>
             </div>
           </div>
-          <div v-if="editionRessourceIds.length" class="selection-info">{{ editionRessourceIds.length }} ressource(s) sélectionnée(s)</div>
+          <div v-if="editionRessourceIds.length" class="selection-info">
+            {{ editionRessourceIds.length }} ressource(s) sélectionnée(s)
+          </div>
         </div>
         <div class="modal-actions">
           <button @click="templateEnEdition = null" class="btn-secondary">Annuler</button>
-          <button @click="sauvegarderModification" class="btn-primary" :disabled="saving">{{ saving ? 'Sauvegarde...' : '💾 Sauvegarder' }}</button>
+          <button @click="sauvegarderModification" class="btn-primary" :disabled="saving">
+            {{ saving ? 'Sauvegarde...' : 'Sauvegarder' }}
+          </button>
         </div>
       </div>
     </div>
+
   </div>
 </template>
 
@@ -197,14 +254,12 @@ const router = useRouter()
 const templates = ref([])
 const ressourcesValidees = ref([])
 const loading = ref(false)
-const loadingRessources = ref(false)
 const saving = ref(false)
 const feedback = ref({ type: '', message: '' })
 const templateEnEdition = ref(null)
 const rechercheRessource = ref('')
 const filtreType = ref('')
 
-// Pour l'affichage des ressources d'un template
 const templateSelectionne = ref(null)
 const ressourcesTemplate = ref([])
 const loadingRessourcesTemplate = ref(false)
@@ -226,7 +281,6 @@ const toggleRessource = (id) => {
   form.value.ressourceIds = ids.includes(id) ? ids.filter(i => i !== id) : [...ids, id]
 }
 
-// Sélectionner un template → charger ses ressources
 const selectionnerTemplate = async (t) => {
   if (templateSelectionne.value?.id === t.id) {
     templateSelectionne.value = null; ressourcesTemplate.value = []; return
@@ -255,29 +309,22 @@ const chargerRessourcesValidees = async () => {
 const creerTemplate = async () => {
   saving.value = true; feedback.value = { type: '', message: '' }
   try {
-    // 1. Créer le template
     const { data: newTemplate } = await api.post('/api/templates', {
       nom: form.value.nom, description: form.value.description, modifiable: form.value.modifiable
     })
-    // 2. Associer les ressources via l'endpoint dédié
     if (form.value.ressourceIds.length > 0) {
-      await api.put(`/api/templates/${newTemplate.id}/ressources`, {
-        ressourceIds: form.value.ressourceIds
-      })
+      await api.put(`/api/templates/${newTemplate.id}/ressources`, { ressourceIds: form.value.ressourceIds })
     }
-    feedback.value = { type: 'success', message: `✅ Template "${newTemplate.nom}" créé avec ${form.value.ressourceIds.length} ressource(s) !` }
+    feedback.value = { type: 'success', message: `Template "${newTemplate.nom}" créé avec ${form.value.ressourceIds.length} ressource(s).` }
     resetForm(); await chargerTemplates()
   } catch (err) {
-    feedback.value = { type: 'error', message: err.response?.status === 403 ? '🚫 Accès refusé.' : 'Erreur lors de la création.' }
+    feedback.value = { type: 'error', message: err.response?.status === 403 ? 'Accès refusé.' : 'Erreur lors de la création.' }
   } finally { saving.value = false }
 }
 
 const modifierTemplate = (t) => {
   templateEnEdition.value = { ...t }
-  // Pré-sélectionner les ressources déjà associées
-  editionRessourceIds.value = ressourcesValidees.value
-    .filter(r => r.templateNom === t.nom)
-    .map(r => r.id)
+  editionRessourceIds.value = ressourcesValidees.value.filter(r => r.templateNom === t.nom).map(r => r.id)
 }
 const editionRessourceIds = ref([])
 const toggleEditionRessource = (id) => {
@@ -289,19 +336,13 @@ const toggleEditionRessource = (id) => {
 const sauvegarderModification = async () => {
   saving.value = true
   try {
-    // Sauvegarder nom/desc/modifiable
     await api.put(`/api/templates/${templateEnEdition.value.id}`, templateEnEdition.value)
-    // Sauvegarder les ressources associées
-    await api.put(`/api/templates/${templateEnEdition.value.id}/ressources`, {
-      ressourceIds: editionRessourceIds.value
-    })
-    feedback.value = { type: 'success', message: '✅ Template mis à jour avec ses ressources.' }
+    await api.put(`/api/templates/${templateEnEdition.value.id}/ressources`, { ressourceIds: editionRessourceIds.value })
+    feedback.value = { type: 'success', message: 'Template mis à jour.' }
     templateEnEdition.value = null; await chargerTemplates()
   } catch { feedback.value = { type: 'error', message: 'Erreur lors de la modification.' } }
   finally { saving.value = false }
 }
-
-const iconeType = (t) => ({ VIDEO:'🎥',H5P:'🎮',PDF:'📄',QUIZ:'❓',HTML:'🌐',LIEN:'🔗',AUTRE:'📦' }[t]||'📦')
 
 onMounted(async () => {
   if (!authStore.canCreateTemplate) { router.push('/login'); return }
@@ -312,92 +353,236 @@ onMounted(async () => {
 <style scoped>
 .enseignant-page { max-width: 1200px; margin: 0 auto; padding: 32px 20px 56px; }
 
+/* ===== HERO ===== */
 .enseignant-hero {
-  display:flex;justify-content:space-between;gap:24px;align-items:end;
-  margin-bottom:28px;padding:32px;border-radius:24px;color:white;
-  background:linear-gradient(135deg,#7c3aed 0%,#4f46e5 60%,#0ea5e9 100%);
+  display: flex; justify-content: space-between; gap: 24px; align-items: flex-end;
+  margin-bottom: 28px; padding: 32px; border-radius: 24px; color: white;
+  background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 60%, #0ea5e9 100%);
 }
-.hero-kicker { display:inline-flex;margin-bottom:12px;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,0.15);font-size:0.78rem;text-transform:uppercase;letter-spacing:0.08em; }
-.enseignant-hero h1 { margin:0 0 12px;font-size:1.9rem;line-height:1.1; }
-.enseignant-hero p { margin:0;max-width:680px;color:rgba(255,255,255,0.9);font-size:0.95rem; }
-.hero-actions { display:flex;gap:12px; }
-.hero-link { display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:999px;border:none;background:#fff;color:#0f172a;font-weight:700;cursor:pointer;text-decoration:none; }
-.hero-link-secondary { background:rgba(255,255,255,0.15);color:white;border:1px solid rgba(255,255,255,0.3); }
+.hero-kicker {
+  display: inline-flex; margin-bottom: 12px; padding: 6px 12px;
+  border-radius: 999px; background: rgba(255,255,255,0.15);
+  font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em;
+}
+.enseignant-hero h1 { margin: 0 0 12px; font-size: 1.9rem; line-height: 1.1; }
+.enseignant-hero p  { margin: 0; max-width: 680px; color: rgba(255,255,255,0.9); font-size: 0.95rem; }
+.hero-actions { display: flex; gap: 12px; }
+.hero-link {
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px;
+  border-radius: 999px; border: none; background: #fff; color: #0f172a;
+  font-weight: 700; cursor: pointer; text-decoration: none;
+}
+.hero-link-secondary {
+  background: rgba(255,255,255,0.15); color: white;
+  border: 1px solid rgba(255,255,255,0.3);
+}
 
-.feedback-bar { padding:14px 20px;border-radius:12px;margin-bottom:20px;font-weight:600; }
-.feedback-bar.success { background:#dcfce7;color:#166534; }
-.feedback-bar.error { background:#fee2e2;color:#991b1b; }
+/* ===== FEEDBACK ===== */
+.feedback-bar {
+  padding: 14px 20px; border-radius: 12px; margin-bottom: 20px; font-weight: 600;
+}
+.feedback-bar.success { background: #dcfce7; color: #166534; }
+.feedback-bar.error   { background: #fee2e2; color: #991b1b; }
 
-.enseignant-layout { display:grid;grid-template-columns:1.1fr 0.9fr;gap:24px; }
-.panel { padding:24px;border-radius:20px;background:white;border:1px solid #dbe4f0;box-shadow:0 8px 24px rgba(15,23,42,0.06); }
-.panel-header { display:flex;justify-content:space-between;align-items:start;gap:16px;margin-bottom:20px; }
-.panel-header h2 { margin:0 0 5px;font-size:1.2rem; }
-.panel-header p { margin:0;color:#64748b;font-size:0.88rem;line-height:1.5; }
-.role-chip,.refresh-btn { display:inline-flex;align-items:center;min-height:36px;padding:0 14px;border-radius:999px;background:#f3e8ff;color:#7c3aed;font-size:0.85rem;font-weight:700;border:none;font-family:inherit;cursor:pointer; }
+/* ===== LAYOUT ===== */
+.enseignant-layout { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 24px; }
+.panel {
+  padding: 24px; border-radius: 20px; background: white;
+  border: 1px solid #dbe4f0; box-shadow: 0 8px 24px rgba(15,23,42,0.06);
+}
+.panel-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 16px; margin-bottom: 20px;
+}
+.panel-header h2 { margin: 0 0 5px; font-size: 1.2rem; }
+.panel-header p  { margin: 0; color: #64748b; font-size: 0.88rem; line-height: 1.5; }
 
-.template-form { display:flex;flex-direction:column;gap:16px; }
-.form-group { display:flex;flex-direction:column;gap:6px; }
-.form-group label { font-size:0.85rem;font-weight:700;color:#334155; }
-.form-group input,.form-group select,.form-group textarea { border:1px solid #cbd5e1;border-radius:12px;padding:12px 14px;font:inherit;color:#0f172a;background:#f8fafc;width:100%; }
-.form-group input:focus,.form-group select:focus,.form-group textarea:focus { outline:none;border-color:#7c3aed; }
+.role-chip, .refresh-btn {
+  display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px;
+  border-radius: 999px; background: #f3e8ff; color: #7c3aed;
+  font-size: 0.85rem; font-weight: 700; border: none; font-family: inherit; cursor: pointer;
+}
 
-.ressources-search-bar { display:flex;gap:8px;margin-bottom:10px; }
-.ressources-search { flex:1;padding:9px 12px;border:1px solid #cbd5e1;border-radius:10px;font:inherit;background:#f8fafc;color:#0f172a; }
-.ressources-filtre { padding:9px 12px;border:1px solid #cbd5e1;border-radius:10px;font:inherit;background:#f8fafc;color:#0f172a; }
-.ressources-list { display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto;border:1px solid #e2e8f0;border-radius:12px;padding:8px; }
-.ressource-item { display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-radius:10px;border:1.5px solid transparent;cursor:pointer;transition:all 0.15s;background:#fafafa; }
-.ressource-item:hover { background:#f0f4ff;border-color:#c4b5fd; }
-.ressource-item.selected { background:#eef2ff;border-color:#6d28d9; }
-.ressource-item-left { display:flex;align-items:flex-start;gap:10px;flex:1; }
-.res-type { width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0; }
-.res-video{background:#fee2e2}.res-h5p{background:#f3e8ff}.res-pdf{background:#fff7ed}.res-quiz{background:#eff6ff}.res-html{background:#dcfce7}.res-lien{background:#e0f2fe}.res-autre{background:#f1f5f9}
-.res-titre { font-size:0.88rem;font-weight:600;color:#1e1b4b;margin-bottom:3px; }
-.res-meta { display:flex;gap:6px;font-size:0.75rem;color:#64748b;flex-wrap:wrap; }
-.check-icon { font-size:18px;flex-shrink:0; }
-.ressources-empty { padding:16px;text-align:center;color:#94a3b8;font-size:13px; }
-.selection-info { margin-top:8px;font-size:12px;color:#7c3aed;font-weight:600; }
+/* ===== FORMULAIRE ===== */
+.template-form { display: flex; flex-direction: column; gap: 16px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group label { font-size: 0.85rem; font-weight: 700; color: #334155; }
+.form-group input,
+.form-group select,
+.form-group textarea {
+  border: 1px solid #cbd5e1; border-radius: 12px; padding: 12px 14px;
+  font: inherit; color: #0f172a; background: #f8fafc; width: 100%; box-sizing: border-box;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus { outline: none; border-color: #7c3aed; }
 
-.form-actions { display:flex;justify-content:flex-end;gap:10px; }
-.btn-primary,.btn-secondary { min-height:42px;padding:0 18px;border-radius:12px;border:none;font-weight:700;cursor:pointer;font-family:inherit; }
-.btn-primary { background:linear-gradient(135deg,#7c3aed,#4f46e5);color:white; }
-.btn-secondary { background:#e2e8f0;color:#0f172a; }
-.btn-primary:disabled { opacity:0.5;cursor:not-allowed; }
+/* Recherche ressources */
+.ressources-search-bar { display: flex; gap: 8px; margin-bottom: 10px; }
+.search-wrapper { position: relative; flex: 1; display: flex; align-items: center; }
+.search-icon {
+  position: absolute; left: 10px; width: 16px; height: 16px; pointer-events: none;
+}
+.ressources-search {
+  width: 100%; padding: 9px 12px 9px 34px;
+  border: 1px solid #cbd5e1; border-radius: 10px;
+  font: inherit; background: #f8fafc; color: #0f172a; box-sizing: border-box;
+}
+.ressources-filtre {
+  padding: 9px 12px; border: 1px solid #cbd5e1;
+  border-radius: 10px; font: inherit; background: #f8fafc; color: #0f172a;
+}
 
-.empty-state { display:grid;place-items:center;min-height:160px;border:1px dashed #cbd5e1;border-radius:16px;color:#94a3b8;padding:20px; }
-.template-list { display:flex;flex-direction:column;gap:12px; }
+/* Liste ressources */
+.ressources-list {
+  display: flex; flex-direction: column; gap: 6px;
+  max-height: 260px; overflow-y: auto;
+  border: 1px solid #e2e8f0; border-radius: 12px; padding: 8px;
+}
+.ressource-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 12px; border-radius: 10px; border: 1.5px solid transparent;
+  cursor: pointer; transition: all 0.15s; background: #fafafa;
+}
+.ressource-item:hover  { background: #f0f4ff; border-color: #c4b5fd; }
+.ressource-item.selected { background: #eef2ff; border-color: #6d28d9; }
 
-.template-card { padding:16px;border-radius:14px;background:linear-gradient(180deg,#ffffff,#faf5ff);border:1px solid #e9d5ff;cursor:pointer;transition:all 0.2s; }
-.template-card:hover { border-color:#c4b5fd;box-shadow:0 4px 16px rgba(124,58,237,0.1); }
-.template-card-active { border-color:#7c3aed;box-shadow:0 4px 20px rgba(124,58,237,0.15); }
-.template-card-top { display:flex;justify-content:space-between;align-items:center;margin-bottom:8px; }
-.modif-pill { display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;font-size:0.75rem;font-weight:700; }
-.modif-yes{background:#dcfce7;color:#166534}.modif-no{background:#fef3c7;color:#92400e}
-.template-meta { font-size:12px;color:#94a3b8; }
-.template-card h3 { margin:0 0 6px;font-size:1rem;color:#1e1b4b; }
-.template-card p { margin:0 0 12px;color:#64748b;font-size:0.88rem; }
-.template-actions { display:flex;align-items:center;gap:8px; }
-.btn-edit { padding:6px 12px;border-radius:8px;border:1px solid #c4b5fd;background:#f3e8ff;color:#7c3aed;font-weight:600;cursor:pointer;font-size:12px; }
-.btn-view { padding:6px 12px;border-radius:8px;border:1px solid #cbd5e1;background:#f8fafc;color:#334155;font-weight:600;cursor:pointer;font-size:12px; }
+.ressource-item-left { display: flex; align-items: flex-start; gap: 10px; flex: 1; }
 
-/* RESSOURCES DU TEMPLATE */
-.template-ressources { margin-top:14px;border-top:1px solid #e9d5ff;padding-top:14px; }
-.tr-loading { color:#94a3b8;font-size:13px;text-align:center;padding:12px; }
-.tr-empty { color:#94a3b8;font-size:13px;font-style:italic;text-align:center;padding:12px; }
-.tr-list { display:flex;flex-direction:column;gap:8px; }
-.tr-item { display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:rgba(124,58,237,0.04);border-radius:10px;border:1px solid rgba(124,58,237,0.1); }
-.tr-type { width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0; }
-.tr-info { flex:1; }
-.tr-titre { font-size:0.85rem;font-weight:700;color:#1e1b4b;margin-bottom:2px; }
-.tr-meta { display:flex;gap:6px;font-size:0.72rem;color:#64748b;flex-wrap:wrap; }
-.tr-tags { display:flex;flex-wrap:wrap;gap:4px;margin-top:4px; }
-.tr-tag { background:#ede9fe;color:#6d28d9;padding:1px 6px;border-radius:4px;font-size:11px; }
-.tr-link { font-size:12px;font-weight:700;color:#7c3aed;text-decoration:none;white-space:nowrap;padding:4px 10px;border-radius:6px;background:#ede9fe;flex-shrink:0; }
-.tr-link:hover { background:#ddd6fe; }
+/* Badge type texte coloré */
+.res-type {
+  padding: 3px 8px; border-radius: 6px;
+  font-size: 10px; font-weight: 800; letter-spacing: 0.5px;
+  text-transform: uppercase; color: white; flex-shrink: 0;
+  align-self: flex-start;
+}
+.res-video { background: #ef4444; }
+.res-h5p   { background: #8b5cf6; }
+.res-pdf   { background: #f97316; }
+.res-quiz  { background: #3b82f6; }
+.res-html  { background: #10b981; }
+.res-lien  { background: #06b6d4; }
+.res-autre { background: #94a3b8; }
 
-.modal-overlay { position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:100; }
-.modal { background:white;border-radius:20px;padding:32px;width:100%;max-width:480px;display:flex;flex-direction:column;gap:16px; }
-.modal h3 { margin:0 0 4px;font-size:1.2rem; }
-.modal-actions { display:flex;justify-content:flex-end;gap:10px;margin-top:8px; }
+.res-titre { font-size: 0.88rem; font-weight: 600; color: #1e1b4b; margin-bottom: 3px; }
+.res-meta  { display: flex; gap: 6px; font-size: 0.75rem; color: #64748b; flex-wrap: wrap; }
 
-@media (max-width: 900px) { .enseignant-layout { grid-template-columns:1fr; } }
+/* Checkbox CSS */
+.check-box {
+  width: 20px; height: 20px; border-radius: 5px;
+  border: 1.5px solid #cbd5e1; background: white;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: all 0.15s;
+}
+.check-box.checked { background: #6d28d9; border-color: #6d28d9; }
+.check-mark { color: white; font-size: 13px; font-weight: 700; line-height: 1; }
+
+.ressources-empty { padding: 16px; text-align: center; color: #94a3b8; font-size: 13px; }
+.selection-info { margin-top: 8px; font-size: 12px; color: #7c3aed; font-weight: 600; }
+
+/* Actions */
+.form-actions { display: flex; justify-content: flex-end; gap: 10px; }
+.btn-primary, .btn-secondary {
+  min-height: 42px; padding: 0 18px; border-radius: 12px;
+  border: none; font-weight: 700; cursor: pointer; font-family: inherit;
+}
+.btn-primary  { background: linear-gradient(135deg, #7c3aed, #4f46e5); color: white; }
+.btn-secondary { background: #e2e8f0; color: #0f172a; }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ===== TEMPLATES LIST ===== */
+.empty-state {
+  display: grid; place-items: center; min-height: 160px;
+  border: 1px dashed #cbd5e1; border-radius: 16px;
+  color: #94a3b8; padding: 20px;
+}
+.template-list { display: flex; flex-direction: column; gap: 12px; }
+
+.template-card {
+  padding: 16px; border-radius: 14px;
+  background: linear-gradient(180deg, #ffffff, #faf5ff);
+  border: 1px solid #e9d5ff; cursor: pointer; transition: all 0.2s;
+}
+.template-card:hover { border-color: #c4b5fd; box-shadow: 0 4px 16px rgba(124,58,237,0.1); }
+.template-card-active { border-color: #7c3aed; box-shadow: 0 4px 20px rgba(124,58,237,0.15); }
+
+.template-card-top {
+  display: flex; justify-content: space-between;
+  align-items: center; margin-bottom: 8px;
+}
+.modif-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 10px; border-radius: 999px;
+  font-size: 0.75rem; font-weight: 700;
+}
+/* Indicateur CSS pour modifiable/clé en main */
+.modif-pill::before {
+  content: ''; width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.modif-yes { background: #dcfce7; color: #166534; }
+.modif-yes::before { background: #22c55e; }
+.modif-no  { background: #fef3c7; color: #92400e; }
+.modif-no::before  { background: #f59e0b; }
+
+.template-meta { font-size: 12px; color: #94a3b8; }
+.template-card h3 { margin: 0 0 6px; font-size: 1rem; color: #1e1b4b; }
+.template-card p  { margin: 0 0 12px; color: #64748b; font-size: 0.88rem; }
+
+.template-actions { display: flex; align-items: center; gap: 8px; }
+.btn-edit {
+  padding: 6px 12px; border-radius: 8px; border: 1px solid #c4b5fd;
+  background: #f3e8ff; color: #7c3aed; font-weight: 600;
+  cursor: pointer; font-size: 12px; font-family: inherit;
+}
+.btn-view {
+  padding: 6px 12px; border-radius: 8px; border: 1px solid #cbd5e1;
+  background: #f8fafc; color: #334155; font-weight: 600;
+  cursor: pointer; font-size: 12px; font-family: inherit;
+}
+
+/* ===== RESSOURCES DU TEMPLATE ===== */
+.template-ressources {
+  margin-top: 14px; border-top: 1px solid #e9d5ff; padding-top: 14px;
+}
+.tr-loading { color: #94a3b8; font-size: 13px; text-align: center; padding: 12px; }
+.tr-empty   { color: #94a3b8; font-size: 13px; font-style: italic; text-align: center; padding: 12px; }
+.tr-list    { display: flex; flex-direction: column; gap: 8px; }
+
+.tr-item {
+  display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px;
+  background: rgba(124,58,237,0.04); border-radius: 10px;
+  border: 1px solid rgba(124,58,237,0.1);
+}
+.tr-type {
+  padding: 3px 7px; border-radius: 5px;
+  font-size: 9px; font-weight: 800; letter-spacing: 0.5px;
+  text-transform: uppercase; color: white; flex-shrink: 0; align-self: flex-start;
+}
+.tr-info { flex: 1; }
+.tr-titre { font-size: 0.85rem; font-weight: 700; color: #1e1b4b; margin-bottom: 2px; }
+.tr-meta  { display: flex; gap: 6px; font-size: 0.72rem; color: #64748b; flex-wrap: wrap; }
+.tr-tags  { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.tr-tag   { background: #ede9fe; color: #6d28d9; padding: 1px 6px; border-radius: 4px; font-size: 11px; }
+.tr-link  {
+  font-size: 12px; font-weight: 700; color: #7c3aed; text-decoration: none;
+  white-space: nowrap; padding: 4px 10px; border-radius: 6px;
+  background: #ede9fe; flex-shrink: 0;
+}
+.tr-link:hover { background: #ddd6fe; }
+
+/* ===== MODALE ===== */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center; z-index: 100;
+}
+.modal {
+  background: white; border-radius: 20px; padding: 32px;
+  width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 16px;
+}
+.modal h3 { margin: 0 0 4px; font-size: 1.2rem; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
+
+@media (max-width: 900px) {
+  .enseignant-layout { grid-template-columns: 1fr; }
+}
 </style>

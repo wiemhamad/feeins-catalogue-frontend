@@ -3,16 +3,17 @@
 
     <!-- HEADER -->
     <div class="page-header">
-      <button @click="router.push('/')" class="btn-retour">← Retour</button>
+      <button @click="router.push('/')" class="btn-retour">&larr; Retour</button>
       <div>
-        <h1> Créer une ressource pédagogique</h1>
+        <h1>Créer une ressource pédagogique</h1>
         <p>La ressource sera soumise à validation avant publication</p>
       </div>
     </div>
 
     <!-- ALERTE SUCCÈS -->
     <div v-if="succes" class="alert-success">
-      ✅ Ressource créée avec succès !
+      <span class="alert-icon alert-icon-success"></span>
+      Ressource créée avec succès !
       Nomenclature : <strong>{{ nomenclatureCreee }}</strong>
       <br/>Elle est en attente de validation par un administrateur.
       <div style="margin-top:10px">
@@ -24,14 +25,20 @@
     </div>
 
     <!-- ALERTE ERREUR -->
-    <div v-if="erreur" class="alert-error">⚠️ {{ erreur }}</div>
+    <div v-if="erreur" class="alert-error">
+      <span class="alert-icon alert-icon-error"></span>
+      {{ erreur }}
+    </div>
 
     <!-- FORMULAIRE -->
     <form v-if="!succes" @submit.prevent="soumettre" class="form-card">
 
       <!-- SECTION 1 : INFORMATIONS DE BASE -->
       <div class="section">
-        <h2 class="section-titre">📋 Informations de base</h2>
+        <h2 class="section-titre">
+          <span class="section-number">1</span>
+          Informations de base
+        </h2>
 
         <div class="form-group">
           <label class="required">Titre</label>
@@ -57,13 +64,13 @@
             <label class="required">Type de support</label>
             <select v-model="form.typeSupport" required>
               <option value="">-- Choisir --</option>
-              <option value="VIDEO">🎥 Vidéo</option>
-              <option value="H5P">🎮 H5P interactif</option>
-              <option value="PDF">📄 PDF</option>
-              <option value="QUIZ">❓ Quiz</option>
-              <option value="HTML">🌐 HTML</option>
-              <option value="LIEN">🔗 Lien externe</option>
-              <option value="AUTRE">📦 Autre</option>
+              <option value="VIDEO">Vidéo</option>
+              <option value="H5P">H5P interactif</option>
+              <option value="PDF">PDF</option>
+              <option value="QUIZ">Quiz</option>
+              <option value="HTML">HTML</option>
+              <option value="LIEN">Lien externe</option>
+              <option value="AUTRE">Autre</option>
             </select>
           </div>
 
@@ -90,16 +97,17 @@
 
       <!-- SECTION 2 : CLASSIFICATION PÉDAGOGIQUE -->
       <div class="section">
-        <h2 class="section-titre">🎓 Classification pédagogique</h2>
+        <h2 class="section-titre">
+          <span class="section-number">2</span>
+          Classification pédagogique
+        </h2>
 
         <div class="form-row">
           <div class="form-group">
             <label>Niveau cible</label>
             <select v-model="form.niveauId">
               <option value="">-- Tous niveaux --</option>
-              <option v-for="n in niveaux" :key="n.id" :value="n.id">
-                {{ n.nom }}
-              </option>
+              <option v-for="n in niveaux" :key="n.id" :value="n.id">{{ n.nom }}</option>
             </select>
           </div>
 
@@ -107,9 +115,7 @@
             <label>Thématique</label>
             <select v-model="form.thematiqueId">
               <option value="">-- Toutes thématiques --</option>
-              <option v-for="t in thematiques" :key="t.id" :value="t.id">
-                {{ t.nom }}
-              </option>
+              <option v-for="t in thematiques" :key="t.id" :value="t.id">{{ t.nom }}</option>
             </select>
           </div>
         </div>
@@ -119,9 +125,9 @@
             <label>Difficulté</label>
             <select v-model="form.difficulte">
               <option value="">-- Non définie --</option>
-              <option value="DEBUTANT">🟢 Débutant</option>
-              <option value="INTERMEDIAIRE">🟡 Intermédiaire</option>
-              <option value="AVANCE">🔴 Avancé</option>
+              <option value="DEBUTANT">Débutant</option>
+              <option value="INTERMEDIAIRE">Intermédiaire</option>
+              <option value="AVANCE">Avancé</option>
             </select>
           </div>
 
@@ -157,36 +163,33 @@
 
       <!-- SECTION 3 : USAGE PÉDAGOGIQUE -->
       <div class="section">
-        <h2 class="section-titre">⚠️ Usage pédagogique</h2>
+        <h2 class="section-titre">
+          <span class="section-number">3</span>
+          Usage pédagogique
+        </h2>
 
         <div class="form-group">
           <label class="required">Type d'usage</label>
           <select v-model="form.usagePedagogique" required>
             <option value="">-- Choisir l'usage --</option>
-            <option value="COURS">📖 Cours</option>
-            <option value="ACTIVITE">✏️ Activité</option>
-            <option value="EVALUATION_FORMATIVE">
-              ✅ Évaluation formative (avec réponses et feedbacks)
-            </option>
-            <option value="EVALUATION_SOMMATIVE">
-              🔒 Évaluation sommative (SANS réponses)
-            </option>
-            <option value="RESSOURCE_COMPLEMENTAIRE">
-              📎 Ressource complémentaire
-            </option>
-            <option value="QUIZ_POSITIONNEMENT">🎯 Quiz de positionnement</option>
+            <option value="COURS">Cours</option>
+            <option value="ACTIVITE">Activité</option>
+            <option value="EVALUATION_FORMATIVE">Évaluation formative (avec réponses et feedbacks)</option>
+            <option value="EVALUATION_SOMMATIVE">Évaluation sommative (SANS réponses)</option>
+            <option value="RESSOURCE_COMPLEMENTAIRE">Ressource complémentaire</option>
+            <option value="QUIZ_POSITIONNEMENT">Quiz de positionnement</option>
           </select>
 
           <!-- AVERTISSEMENT ÉVALUATION SOMMATIVE -->
-          <div
-            v-if="form.usagePedagogique === 'EVALUATION_SOMMATIVE'"
-            class="alerte-sommative"
-          >
-            🚨 ATTENTION — Évaluation sommative<br/>
-            Cette ressource <strong>NE DOIT PAS</strong> contenir les réponses,
-            les corrections ni les feedbacks.<br/>
-            Elle est utilisée comme certification ou évaluation finale.
-            Vérifiez soigneusement avant de soumettre.
+          <div v-if="form.usagePedagogique === 'EVALUATION_SOMMATIVE'" class="alerte-sommative">
+            <span class="sommative-indicator"></span>
+            <div>
+              <strong>ATTENTION — Évaluation sommative</strong><br/>
+              Cette ressource <strong>NE DOIT PAS</strong> contenir les réponses,
+              les corrections ni les feedbacks.<br/>
+              Elle est utilisée comme certification ou évaluation finale.
+              Vérifiez soigneusement avant de soumettre.
+            </div>
           </div>
         </div>
 
@@ -205,7 +208,10 @@
 
       <!-- SECTION 4 : TAGS -->
       <div class="section">
-        <h2 class="section-titre">🏷️ Tags</h2>
+        <h2 class="section-titre">
+          <span class="section-number">4</span>
+          Tags
+        </h2>
         <p class="section-desc">
           Les tags sont essentiels pour retrouver et réutiliser les ressources.
         </p>
@@ -229,16 +235,19 @@
 
       <!-- SECTION 5 : DROITS ET AUTEUR -->
       <div class="section">
-        <h2 class="section-titre">📜 Droits et auteur</h2>
+        <h2 class="section-titre">
+          <span class="section-number">5</span>
+          Droits et auteur
+        </h2>
 
         <div class="form-row">
           <div class="form-group">
             <label>Droits d'utilisation</label>
             <select v-model="form.droits">
-              <option value="FEEINS_INTERNE">🔒 FEEINS interne</option>
-              <option value="LIBRE">✅ Libre</option>
-              <option value="PARTENAIRE">🤝 Partenaire</option>
-              <option value="SOUS_LICENCE">📋 Sous licence</option>
+              <option value="FEEINS_INTERNE">FEEINS interne</option>
+              <option value="LIBRE">Libre</option>
+              <option value="PARTENAIRE">Partenaire</option>
+              <option value="SOUS_LICENCE">Sous licence</option>
             </select>
           </div>
 
@@ -259,7 +268,7 @@
           Annuler
         </button>
         <button type="submit" class="btn-soumettre" :disabled="loading">
-          {{ loading ? 'Création en cours...' : '✅ Soumettre pour validation' }}
+          {{ loading ? 'Création en cours...' : 'Soumettre pour validation' }}
         </button>
       </div>
 
@@ -303,14 +312,11 @@ const form = ref({
 })
 
 onMounted(async () => {
-  // Vérifier que l'utilisateur est connecté et a le bon rôle
   const user = JSON.parse(localStorage.getItem('user') || '{}')
   if (!user.role || (user.role !== 'CONTRIBUTEUR' && user.role !== 'ADMINISTRATEUR_PEDAGOGIQUE')) {
     router.push('/login')
     return
   }
-
-  // Charger les référentiels
   try {
     const [n, t, tg, tp] = await Promise.all([
       api.get('/api/niveaux'),
@@ -339,7 +345,6 @@ const toggleTag = (tagId) => {
 const soumettre = async () => {
   erreur.value = ''
   loading.value = true
-
   try {
     const payload = {
       ...form.value,
@@ -349,12 +354,10 @@ const soumettre = async () => {
       difficulte: form.value.difficulte || null,
       dureeMinutes: form.value.dureeMinutes || null
     }
-
     const response = await api.post('/api/ressources/creer', payload)
     nomenclatureCreee.value = response.data.nomenclature
     succes.value = true
     window.scrollTo(0, 0)
-
   } catch (err) {
     if (err.response?.status === 403) {
       erreur.value = 'Accès refusé. Vous devez être contributeur ou administrateur.'
@@ -372,22 +375,11 @@ const resetForm = () => {
   erreur.value = ''
   nomenclatureCreee.value = ''
   form.value = {
-    titre: '',
-    description: '',
-    typeSupport: '',
-    dureeMinutes: null,
-    urlAcces: '',
-    niveauId: '',
-    thematiqueId: '',
-    difficulte: '',
-    templateId: '',
-    objectifsPedagogiques: '',
-    competencesVisees: '',
-    tagIds: [],
-    usagePedagogique: '',
-    usageMoodle: '',
-    droits: 'FEEINS_INTERNE',
-    auteurPartenaire: ''
+    titre: '', description: '', typeSupport: '', dureeMinutes: null,
+    urlAcces: '', niveauId: '', thematiqueId: '', difficulte: '',
+    templateId: '', objectifsPedagogiques: '', competencesVisees: '',
+    tagIds: [], usagePedagogique: '', usageMoodle: '',
+    droits: 'FEEINS_INTERNE', auteurPartenaire: ''
   }
 }
 </script>
@@ -399,6 +391,7 @@ const resetForm = () => {
   padding: 20px;
 }
 
+/* ===== HEADER ===== */
 .page-header {
   display: flex;
   align-items: flex-start;
@@ -408,9 +401,9 @@ const resetForm = () => {
 .page-header h1 {
   font-size: 1.5rem;
   color: #4ddb34;
-  margin-bottom: 8px;
+  margin: 0 0 6px;
 }
-.page-header p { color:#ffffff; font-size: 0.9rem; }
+.page-header p { color: #ffffff; font-size: 0.9rem; margin: 0; }
 
 .btn-retour {
   padding: 8px 16px;
@@ -422,8 +415,11 @@ const resetForm = () => {
   color: #9dc010;
   white-space: nowrap;
   flex-shrink: 0;
+  font-family: inherit;
 }
+.btn-retour:hover { opacity: 0.85; }
 
+/* ===== ALERTES ===== */
 .alert-success {
   background: var(--color-background-success);
   color: var(--color-text-success);
@@ -431,6 +427,9 @@ const resetForm = () => {
   border-radius: 12px;
   margin-bottom: 20px;
   line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 .alert-error {
   background: var(--color-background-danger);
@@ -438,16 +437,29 @@ const resetForm = () => {
   padding: 15px;
   border-radius: 8px;
   margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
+/* Indicateurs d'alerte CSS */
+.alert-icon {
+  width: 18px; height: 18px; border-radius: 50%;
+  flex-shrink: 0; display: inline-block;
+}
+.alert-icon-success { background: #22c55e; }
+.alert-icon-error   { background: #ef4444; }
+
+/* ===== FORM CARD ===== */
 .form-card {
   background: var(--color-background-primary);
   border-radius: 16px;
   padding: 0;
-  box-shadow: 0 2px 12px #D4FF00;
+  box-shadow: 0 2px 12px rgba(212, 255, 0, 0.15);
   overflow: hidden;
 }
 
+/* ===== SECTIONS ===== */
 .section {
   padding: 25px 30px;
   border-bottom: 1px solid var(--color-border-tertiary);
@@ -456,17 +468,35 @@ const resetForm = () => {
 
 .section-titre {
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 600;
   color: #cbd5e1;
-  margin-bottom: 18px;
+  margin: 0 0 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
+
+/* Numéro de section en remplacement des emojis */
+.section-number {
+  width: 24px; height: 24px;
+  background: #D4FF00;
+  color: #0f172a;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
 .section-desc {
   font-size: 13px;
   color: #3498db;
-  margin-bottom: 15px;
-  margin-top: -12px;
+  margin: -12px 0 15px;
 }
 
+/* ===== FORM LAYOUT ===== */
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -496,18 +526,21 @@ label.required::after {
 
 input, select, textarea {
   padding: 10px 12px;
-  border: 1.5px solid var(--color-border-tertiary);
+  border: 1px solid rgba(255,255,255,0.2);
   border-radius: 8px;
   font-size: 14px;
-  background: var(--color-background-primary);
-  color: var(--color-text-primary);
+  background-color: rgba(255,255,255,0.08);
+  color: #ffffff;
   transition: border-color 0.2s;
   font-family: inherit;
 }
 input:focus, select:focus, textarea:focus {
   border-color: #4ddb34;
   outline: none;
+  background-color: rgba(255,255,255,0.12);
 }
+input::placeholder, textarea::placeholder { color: #cbd5e1; }
+select option { background-color: #1e1e3f; color: white; }
 textarea { resize: vertical; }
 
 .hint {
@@ -515,20 +548,42 @@ textarea { resize: vertical; }
   color: var(--color-text-secondary);
 }
 
-/* Avertissement évaluation sommative */
+/* ===== AVERTISSEMENT ÉVAL SOMMATIVE ===== */
 .alerte-sommative {
   margin-top: 10px;
   padding: 14px;
   background: var(--color-background-danger);
   color: var(--color-text-danger);
-  border-radius: 8px;
+  border-left: 4px solid #ef4444;
+  border-radius: 0 8px 8px 0;
   font-size: 13px;
   line-height: 1.6;
-  border-left: 4px solid var(--color-border-danger);
-  border-radius: 0 8px 8px 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.sommative-indicator {
+  width: 20px; height: 20px;
+  background: #ef4444;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 2px;
+  position: relative;
+}
+/* Point d'exclamation CSS */
+.sommative-indicator::before {
+  content: '!';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 13px;
+  font-weight: 900;
 }
 
-/* Tags */
+/* ===== TAGS ===== */
 .tags-container {
   display: flex;
   flex-wrap: wrap;
@@ -543,12 +598,10 @@ textarea { resize: vertical; }
   color: var(--color-text-secondary);
   cursor: pointer;
   font-size: 13px;
+  font-family: inherit;
   transition: all 0.2s;
 }
-.tag-btn:hover {
-  border-color: #3498db;
-  color: #3498db;
-}
+.tag-btn:hover { border-color: #3498db; color: #3498db; }
 .tag-actif {
   background: #2c3e50 !important;
   color: white !important;
@@ -560,7 +613,7 @@ textarea { resize: vertical; }
   font-weight: 500;
 }
 
-/* Actions */
+/* ===== ACTIONS ===== */
 .form-actions {
   padding: 20px 30px;
   display: flex;
@@ -576,6 +629,7 @@ textarea { resize: vertical; }
   cursor: pointer;
   font-size: 14px;
   color: var(--color-text-secondary);
+  font-family: inherit;
 }
 .btn-soumettre {
   padding: 12px 28px;
@@ -585,7 +639,8 @@ textarea { resize: vertical; }
   border-radius: 8px;
   cursor: pointer;
   font-size: 15px;
-  font-weight: 500;
+  font-weight: 600;
+  font-family: inherit;
   transition: background 0.2s;
 }
 .btn-soumettre:hover:not(:disabled) { background: #3498db; }
@@ -599,35 +654,11 @@ textarea { resize: vertical; }
   border-radius: 6px;
   cursor: pointer;
   font-size: 13px;
+  font-family: inherit;
 }
 .btn-outline {
   background: transparent;
   border: 1px solid currentColor;
   color: var(--color-text-success);
-}
-/* ===== FIX VISIBILITÉ INPUTS (IMPORTANT) ===== */
-input,
-select,
-textarea {
-  background-color: rgba(255,255,255,0.08) !important;
-  color: #ffffff !important;
-  border: 1px solid rgba(255,255,255,0.2) !important;
-}
-
-/* placeholder */
-input::placeholder,
-textarea::placeholder {
-  color: #cbd5e1 !important;
-}
-
-/* select texte */
-select {
-  color: #ffffff !important;
-}
-
-/* options dropdown */
-select option {
-  background-color: #1e1e3f !important;
-  color: white !important;
 }
 </style>

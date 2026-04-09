@@ -3,9 +3,19 @@
  
     <!-- Fond spatial -->
     <div class="space-bg">
+      <div class="space-gradient"></div>
       <div class="nebula n1"></div>
       <div class="nebula n2"></div>
       <div class="nebula n3"></div>
+      <div class="nebula n4"></div>
+      <div class="aurora a1"></div>
+      <div class="aurora a2"></div>
+      <div class="orbit o1"></div>
+      <div class="orbit o2"></div>
+      <div class="beam b1"></div>
+      <div class="beam b2"></div>
+      <div class="grid-fade"></div>
+      <div class="grain"></div>
       <div class="stars"></div>
     </div>
  
@@ -441,36 +451,150 @@ const labelDiff  = (d) => ({ DEBUTANT:'Débutant', INTERMEDIAIRE:'Intermédiaire
 .space-bg {
   position: fixed;
   inset: 0;
-  background: linear-gradient(135deg, #0f0524 0%, #1a0a3e 30%, #0d1b4b 60%, #1a0533 100%);
+  background:
+    radial-gradient(circle at top left, rgba(212, 255, 0, 0.08), transparent 24%),
+    radial-gradient(circle at 85% 14%, rgba(132, 89, 255, 0.18), transparent 28%),
+    linear-gradient(145deg, #09031a 0%, #13072f 26%, #0a1440 58%, #170525 100%);
   z-index: 0;
 }
- 
-.nebula {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  pointer-events: none;
-}
- 
-.n1 {
-  width: 600px; height: 500px;
-  background: radial-gradient(ellipse, rgba(139, 92, 246, 0.45) 0%, transparent 70%);
-  top: -100px; right: -150px;
-}
-.n2 {
-  width: 500px; height: 400px;
-  background: radial-gradient(ellipse, rgba(59, 130, 246, 0.35) 0%, transparent 70%);
-  bottom: -80px; left: -100px;
-}
-.n3 {
-  width: 300px; height: 300px;
-  background: radial-gradient(ellipse, rgba(236, 72, 153, 0.25) 0%, transparent 70%);
-  top: 40%; left: 50%;
-  transform: translate(-50%, -50%);
-}
+
+.space-gradient,
+.grid-fade,
+.grain,
+.aurora,
+.orbit,
+.beam,
+.nebula,
 .stars {
   position: absolute;
   inset: 0;
+  pointer-events: none;
+}
+
+.space-gradient {
+  background:
+    radial-gradient(circle at 16% 18%, rgba(70, 205, 255, 0.14), transparent 20%),
+    radial-gradient(circle at 78% 26%, rgba(215, 255, 64, 0.1), transparent 18%),
+    radial-gradient(circle at 52% 78%, rgba(246, 92, 191, 0.12), transparent 24%);
+  mix-blend-mode: screen;
+}
+ 
+.nebula {
+  border-radius: 50%;
+  filter: blur(95px);
+}
+ 
+.n1 {
+  inset: auto;
+  width: 680px; height: 540px;
+  background: radial-gradient(ellipse, rgba(123, 82, 255, 0.52) 0%, rgba(123, 82, 255, 0.2) 42%, transparent 74%);
+  top: -120px; right: -180px;
+}
+.n2 {
+  inset: auto;
+  width: 560px; height: 460px;
+  background: radial-gradient(ellipse, rgba(57, 160, 255, 0.38) 0%, rgba(57, 160, 255, 0.14) 45%, transparent 75%);
+  bottom: -110px; left: -120px;
+}
+.n3 {
+  inset: auto;
+  width: 420px; height: 420px;
+  background: radial-gradient(ellipse, rgba(236, 72, 153, 0.24) 0%, rgba(236, 72, 153, 0.08) 48%, transparent 74%);
+  top: 40%; left: 50%;
+  transform: translate(-50%, -50%);
+}
+.n4 {
+  inset: auto;
+  width: 340px; height: 340px;
+  background: radial-gradient(ellipse, rgba(212, 255, 0, 0.18) 0%, rgba(212, 255, 0, 0.05) 45%, transparent 76%);
+  top: 10%;
+  left: 18%;
+}
+
+.aurora {
+  filter: blur(16px);
+  opacity: 0.85;
+}
+
+.a1 {
+  background:
+    linear-gradient(118deg, transparent 24%, rgba(212, 255, 0, 0.12) 36%, rgba(72, 204, 255, 0.17) 51%, rgba(171, 102, 255, 0.14) 68%, transparent 80%);
+  transform: translateY(-6%) rotate(-7deg) scale(1.2);
+}
+
+.a2 {
+  background:
+    linear-gradient(100deg, transparent 28%, rgba(255, 120, 214, 0.09) 42%, rgba(123, 82, 255, 0.14) 56%, rgba(54, 165, 255, 0.08) 70%, transparent 84%);
+  transform: translateY(18%) rotate(8deg) scale(1.12);
+  opacity: 0.7;
+}
+
+.orbit {
+  inset: auto;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 1px rgba(212, 255, 0, 0.02);
+}
+
+.o1 {
+  width: 620px;
+  height: 620px;
+  top: -220px;
+  right: -120px;
+  transform: rotate(18deg);
+}
+
+.o2 {
+  width: 520px;
+  height: 520px;
+  bottom: -200px;
+  left: -90px;
+  transform: rotate(-14deg);
+  border-color: rgba(99, 172, 255, 0.08);
+}
+
+.beam {
+  inset: auto;
+  width: 34vw;
+  max-width: 420px;
+  min-width: 240px;
+  height: 120vh;
+  filter: blur(24px);
+  opacity: 0.22;
+}
+
+.b1 {
+  top: -10vh;
+  right: 8%;
+  background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(147, 95, 255, 0.4) 28%, rgba(147, 95, 255, 0.08) 72%, rgba(255,255,255,0) 100%);
+  transform: rotate(22deg);
+}
+
+.b2 {
+  top: -16vh;
+  left: 2%;
+  background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(73, 185, 255, 0.28) 30%, rgba(212, 255, 0, 0.08) 70%, rgba(255,255,255,0) 100%);
+  transform: rotate(-20deg);
+}
+
+.grid-fade {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px);
+  background-size: 88px 88px;
+  mask-image: radial-gradient(circle at 50% 45%, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.55) 52%, transparent 86%);
+  opacity: 0.18;
+}
+
+.grain {
+  background-image:
+    radial-gradient(rgba(255,255,255,0.12) 0.7px, transparent 0.7px);
+  background-size: 18px 18px;
+  opacity: 0.05;
+  mix-blend-mode: soft-light;
+}
+
+.stars {
   background-image:
     radial-gradient(1px 1px at 8% 12%, rgba(255,255,255,0.9) 0%, transparent 100%),
     radial-gradient(1px 1px at 22% 38%, rgba(255,255,255,0.6) 0%, transparent 100%),
@@ -485,7 +609,10 @@ const labelDiff  = (d) => ({ DEBUTANT:'Débutant', INTERMEDIAIRE:'Intermédiaire
     radial-gradient(1px 1px at 72% 48%, rgba(255,255,255,0.6) 0%, transparent 100%),
     radial-gradient(1px 1px at 45% 30%, rgba(255,255,255,0.5) 0%, transparent 100%),
     radial-gradient(1px 1px at 92% 18%, rgba(255,255,255,0.7) 0%, transparent 100%),
-    radial-gradient(1px 1px at 5%  55%, rgba(255,255,255,0.4) 0%, transparent 100%);
+    radial-gradient(1px 1px at 5%  55%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(2px 2px at 63% 14%, rgba(212,255,0,0.75) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 27% 72%, rgba(118,192,255,0.9) 0%, transparent 100%);
+  opacity: 0.9;
 }
  
 /* ===== GLASS CARD ===== */
@@ -1012,5 +1139,10 @@ const labelDiff  = (d) => ({ DEBUTANT:'Débutant', INTERMEDIAIRE:'Intermédiaire
   .quiz-page { padding: 16px; align-items: flex-start; }
   .glass-card { padding: 24px 20px; }
   .choix-grid-2 { grid-template-columns: 1fr; }
+  .o1,
+  .o2,
+  .beam { opacity: 0.4; }
+  .n1 { width: 500px; height: 420px; }
+  .n2 { width: 420px; height: 360px; }
 }
 </style>

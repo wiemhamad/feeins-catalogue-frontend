@@ -158,6 +158,25 @@
             <option :value="true">🔓 Modifiable</option><option :value="false">🔒 Clé en main</option>
           </select>
         </div>
+        <!-- Ressources dans le modal d'édition -->
+        <div class="form-group" style="margin-top:8px">
+          <label>📚 Ressources associées</label>
+          <div class="ressources-list" style="max-height:200px">
+            <div v-for="r in ressourcesValidees" :key="r.id" class="ressource-item"
+              :class="{ selected: editionRessourceIds.includes(r.id) }"
+              @click="toggleEditionRessource(r.id)">
+              <div class="ressource-item-left">
+                <span class="res-type" :class="'res-' + r.typeSupport?.toLowerCase()">{{ iconeType(r.typeSupport) }}</span>
+                <div>
+                  <div class="res-titre">{{ r.titre }}</div>
+                  <div class="res-meta"><span v-if="r.thematiqueNom">{{ r.thematiqueNom }}</span><span v-if="r.dureeMinutes">{{ r.dureeMinutes }} min</span></div>
+                </div>
+              </div>
+              <div class="check-icon">{{ editionRessourceIds.includes(r.id) ? '✅' : '⬜' }}</div>
+            </div>
+          </div>
+          <div v-if="editionRessourceIds.length" class="selection-info">{{ editionRessourceIds.length }} ressource(s) sélectionnée(s)</div>
+        </div>
         <div class="modal-actions">
           <button @click="templateEnEdition = null" class="btn-secondary">Annuler</button>
           <button @click="sauvegarderModification" class="btn-primary" :disabled="saving">{{ saving ? 'Sauvegarde...' : '💾 Sauvegarder' }}</button>
@@ -236,31 +255,47 @@ const chargerRessourcesValidees = async () => {
 const creerTemplate = async () => {
   saving.value = true; feedback.value = { type: '', message: '' }
   try {
+    // 1. Créer le template
     const { data: newTemplate } = await api.post('/api/templates', {
       nom: form.value.nom, description: form.value.description, modifiable: form.value.modifiable
     })
-    // Associer les ressources sélectionnées
+    // 2. Associer les ressources via l'endpoint dédié
     if (form.value.ressourceIds.length > 0) {
-      await Promise.all(
-        form.value.ressourceIds.map(rid =>
-          api.put(`/api/ressources/${rid}/modifier`, { templateId: newTemplate.id }).catch(() => null)
-        )
-      )
+      await api.put(`/api/templates/${newTemplate.id}/ressources`, {
+        ressourceIds: form.value.ressourceIds
+      })
     }
-    feedback.value = { type: 'success', message: `✅ Template "${newTemplate.nom}" créé !` }
+    feedback.value = { type: 'success', message: `✅ Template "${newTemplate.nom}" créé avec ${form.value.ressourceIds.length} ressource(s) !` }
     resetForm(); await chargerTemplates()
   } catch (err) {
     feedback.value = { type: 'error', message: err.response?.status === 403 ? '🚫 Accès refusé.' : 'Erreur lors de la création.' }
   } finally { saving.value = false }
 }
 
-const modifierTemplate = (t) => { templateEnEdition.value = { ...t } }
+const modifierTemplate = (t) => {
+  templateEnEdition.value = { ...t }
+  // Pré-sélectionner les ressources déjà associées
+  editionRessourceIds.value = ressourcesValidees.value
+    .filter(r => r.templateNom === t.nom)
+    .map(r => r.id)
+}
+const editionRessourceIds = ref([])
+const toggleEditionRessource = (id) => {
+  editionRessourceIds.value = editionRessourceIds.value.includes(id)
+    ? editionRessourceIds.value.filter(i => i !== id)
+    : [...editionRessourceIds.value, id]
+}
 
 const sauvegarderModification = async () => {
   saving.value = true
   try {
+    // Sauvegarder nom/desc/modifiable
     await api.put(`/api/templates/${templateEnEdition.value.id}`, templateEnEdition.value)
-    feedback.value = { type: 'success', message: '✅ Template mis à jour.' }
+    // Sauvegarder les ressources associées
+    await api.put(`/api/templates/${templateEnEdition.value.id}/ressources`, {
+      ressourceIds: editionRessourceIds.value
+    })
+    feedback.value = { type: 'success', message: '✅ Template mis à jour avec ses ressources.' }
     templateEnEdition.value = null; await chargerTemplates()
   } catch { feedback.value = { type: 'error', message: 'Erreur lors de la modification.' } }
   finally { saving.value = false }

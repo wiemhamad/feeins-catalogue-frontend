@@ -70,10 +70,7 @@
             Accedez a une plateforme moderne pour apprendre, reviser et progresser
             en sante numerique grace a des contenus interactifs.
           </p>
-          <div class="hero-ctas">
-            <RouterLink to="/catalogue" class="cta">ACCEDER AU CATALOGUE</RouterLink>
-            <RouterLink to="/templates" class="cta cta-secondary">VOIR LES TEMPLATES</RouterLink>
-          </div>
+        
           <div class="hero-metrics">
             <article class="metric-card">
               <strong>Catalogue ouvert</strong>

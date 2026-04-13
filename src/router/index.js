@@ -11,6 +11,8 @@ const router = createRouter({
     { path: '/', name: 'home', component: () => import('@/views/HomeView.vue') },
     { path: '/catalogue', name: 'catalogue', component: () => import('@/views/CatalogueView.vue') },
     { path: '/quiz', name: 'quiz', component: () => import('@/views/QuizPositionnement.vue') },
+    { path: '/templates', name: 'templates', component: () => import('@/views/TemplatesPublicView.vue') },
+    { path: '/templates/:id', name: 'template-detail', component: () => import('@/views/TemplateDetailView.vue') },
     { path: '/login', name: 'login', component: () => import('@/views/LoginView.vue') },
 
 

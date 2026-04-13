@@ -90,7 +90,7 @@
           <div v-for="t in templates" :key="t.id" class="template-card" :class="{ 'template-card-active': templateSelectionne?.id === t.id }" @click="selectionnerTemplate(t)">
             <div class="template-card-top">
               <span class="modif-pill" :class="t.modifiable ? 'modif-yes' : 'modif-no'">{{ t.modifiable ? '🔓 Modifiable' : '🔒 Clé en main' }}</span>
-              <span class="template-meta">{{ t.ressources?.length || 0 }} ressource(s)</span>
+             
             </div>
             <h3>{{ t.nom }}</h3>
             <p>{{ t.description || 'Aucune description.' }}</p>

@@ -86,7 +86,7 @@
               <p class="card-desc">{{ t.description || 'Aucune description disponible.' }}</p>
 
               <!-- RESSOURCES ASSOCIÉES -->
-              <div v-if="t.ressources && t.ressources.length" class="ressources-preview">
+              <div v-if="t.ressources && t.ressources.length > 0" class="ressources-preview">
                 <div class="ressources-label">📚 Ressources incluses :</div>
                 <div class="ressources-list">
                   <span
@@ -106,7 +106,7 @@
 
               <!-- FOOTER -->
               <div class="card-footer">
-                <span class="card-meta">{{ t.ressources?.length || 0 }} ressource(s)</span>
+                <span class="card-meta">{{ t.nbRessources || 0 }} ressource(s)</span>
                 <span class="card-link" @click.stop="router.push('/templates/' + t.id)">Voir les ressources →</span>
               </div>
             </article>
@@ -141,7 +141,7 @@ const templatesFiltres = computed(() => {
     const matchQ = !q ||
       t.nom?.toLowerCase().includes(q) ||
       t.description?.toLowerCase().includes(q) ||
-      t.ressources?.some(r => r.titre?.toLowerCase().includes(q))
+      t.ressources?.some(r => r.titre?.toLowerCase().includes(q)) || false
     const matchType =
       filtreType.value === '' ||
       (filtreType.value === 'modifiable' && t.modifiable) ||

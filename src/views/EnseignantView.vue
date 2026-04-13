@@ -204,6 +204,22 @@ const sauvegarderModification = async () => {
   }
 }
 
+const supprimerTemplate = async (t) => {
+  if (!confirm(`Supprimer le template "${t.nom}" ?\n\nLes ressources associées seront détachées mais pas supprimées.`)) return
+  try {
+    await api.delete(`/api/templates/${t.id}`)
+    feedback.value = { type: 'success', message: `✅ Template "${t.nom}" supprimé.` }
+    await chargerTemplates()
+  } catch (err) {
+    feedback.value = {
+      type: 'error',
+      message: err.response?.status === 403
+        ? '🚫 Vous ne pouvez supprimer que vos propres templates.'
+        : 'Erreur lors de la suppression.'
+    }
+  }
+}
+
 onMounted(async () => {
   if (!authStore.canCreateTemplate) {
     router.push('/login')

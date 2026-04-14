@@ -189,10 +189,12 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import api from '@/api/axios'
+import { useRoute } from 'vue-router'
 import RessourceCard from '@/components/RessourceCard.vue'
 import { useAuthStore } from '@/stores/auth'
 
 const authStore = useAuthStore()
+const route = useRoute()
 const ressources = ref([])
 const niveaux = ref([])
 const loading = ref(true)
@@ -293,6 +295,12 @@ const charger = async () => {
 
 onMounted(async () => {
   await chargerReferentiels()
+  // Appliquer les filtres du quiz de positionnement si présents
+  const q = route.query
+  if (q.difficulte) filtres.value.difficulte = q.difficulte
+  if (q.thematiqueId) filtres.value.thematiqueId = Number(q.thematiqueId)
+  if (q.typeSupport) filtres.value.typeSupport = q.typeSupport
+  if (q.dureeMax) filtres.value.dureeMax = Number(q.dureeMax)  // handled in search payload
   await charger()
 })
 

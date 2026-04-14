@@ -24,7 +24,7 @@
       <div class="hero-content">
         <div class="pricing">
           <div class="price-card">
-            <div class="price">VOUS ETES</div>
+            <div class="price">VOUS ÊTES</div>
             <p>Visiteur / Etudiant</p>
             <span>
               Consultez le catalogue, faites le quiz de positionnement et accedez aux ressources
@@ -37,7 +37,7 @@
           </div>
 
           <div class="price-card">
-            <div class="price">VOUS ETES</div>
+            <div class="price">VOUS ÊTES</div>
             <p>Contributeur</p>
             <span>
               Vous creez et proposez des ressources pedagogiques.
@@ -47,7 +47,7 @@
           </div>
 
           <div class="price-card">
-            <div class="price">VOUS ETES</div>
+            <div class="price">VOUS ÊTES</div>
             <p>Enseignant</p>
             <span>
               Vous composez des templates pedagogiques a partir de ressources

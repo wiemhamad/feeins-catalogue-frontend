@@ -22,6 +22,14 @@
           </button>
         </div>
 
+        <!-- RECHERCHE -->
+        <div class="sidebar-block">
+          <div class="search-sidebar">
+            <input v-model="keyword" type="text" placeholder="🔍 Rechercher..." @input="onSearch" />
+          </div>
+        </div>
+
+        <!-- NIVEAUX -->
         <div class="sidebar-block">
           <h3>Niveau</h3>
           <div class="filter-group">
@@ -33,13 +41,30 @@
               :class="{ active: filtres.niveauId === niveau.value }"
               @click="setFiltre('niveauId', niveau.value)"
             >
-              <span class="checkbox"></span>
-              {{ niveau.label }}
+              <span class="checkbox"></span>{{ niveau.label }}
             </button>
           </div>
         </div>
 
-        <div class="sidebar-block">
+        <!-- THÉMATIQUES -->
+        <div class="sidebar-block" v-if="thematiques.length">
+          <h3>Thématique</h3>
+          <div class="filter-group">
+            <button
+              v-for="t in thematiques"
+              :key="t.id"
+              type="button"
+              class="filter-checkbox"
+              :class="{ active: filtres.thematiqueId === t.id }"
+              @click="setFiltre('thematiqueId', t.id)"
+            >
+              <span class="checkbox"></span>{{ t.nom }}
+            </button>
+          </div>
+        </div>
+
+        <!-- TYPE DE CONTENU -->
+        <div class="sidebar-block" v-if="typesFiltres.length">
           <h3>Type de contenu</h3>
           <div class="filter-group">
             <button
@@ -50,8 +75,41 @@
               :class="{ active: filtres.typeSupport === type.value }"
               @click="setFiltre('typeSupport', type.value)"
             >
-              <span class="checkbox"></span>
-              {{ type.label }}
+              <span class="checkbox"></span>{{ type.label }}
+            </button>
+          </div>
+        </div>
+
+        <!-- DIFFICULTÉ -->
+        <div class="sidebar-block" v-if="difficultes.length">
+          <h3>Difficulté</h3>
+          <div class="filter-group">
+            <button
+              v-for="d in difficultes"
+              :key="d.value"
+              type="button"
+              class="filter-checkbox"
+              :class="{ active: filtres.difficulte === d.value }"
+              @click="setFiltre('difficulte', d.value)"
+            >
+              <span class="checkbox"></span>{{ d.label }}
+            </button>
+          </div>
+        </div>
+
+        <!-- TAGS -->
+        <div class="sidebar-block" v-if="tags.length">
+          <h3>Tags</h3>
+          <div class="tags-cloud">
+            <button
+              v-for="tag in tags"
+              :key="tag.id"
+              type="button"
+              class="tag-btn"
+              :class="{ active: filtres.tag === tag.libelle }"
+              @click="setFiltre('tag', tag.libelle)"
+            >
+              #{{ tag.libelle }}
             </button>
           </div>
         </div>
@@ -142,7 +200,10 @@ const keyword = ref('')
 const tri = ref('pertinence')
 const filtres = ref({
   niveauId: null,
-  typeSupport: null
+  typeSupport: null,
+  thematiqueId: null,
+  difficulte: null,
+  tag: null
 })
 
 let searchTimer = null
@@ -157,12 +218,17 @@ const niveauxFiltres = computed(() => [
 
 const typesFiltres = ref([])
 const difficultes = ref([])
+const thematiques = ref([])
+const tags = ref([])
 
 const total = computed(() => ressources.value.length)
 
 const hasActiveFilters = computed(() => {
-  return filtres.value.niveauId !== null || 
-         filtres.value.typeSupport !== null || 
+  return filtres.value.niveauId !== null ||
+         filtres.value.typeSupport !== null ||
+         filtres.value.thematiqueId !== null ||
+         filtres.value.difficulte !== null ||
+         filtres.value.tag !== null ||
          keyword.value.trim() !== ''
 })
 
@@ -207,9 +273,10 @@ const charger = async () => {
       payload.niveauId = filtres.value.niveauId
     }
 
-    if (filtres.value.typeSupport) {
-      payload.typeSupport = filtres.value.typeSupport
-    }
+    if (filtres.value.typeSupport)  payload.typeSupport  = filtres.value.typeSupport
+    if (filtres.value.thematiqueId) payload.thematiqueId = filtres.value.thematiqueId
+    if (filtres.value.difficulte)   payload.difficulte   = filtres.value.difficulte
+    if (filtres.value.tag)          payload.tag          = filtres.value.tag
 
     const response = Object.keys(payload).length > 0
       ? await api.post('/api/ressources/rechercher', payload)
@@ -244,7 +311,10 @@ const resetFiltres = () => {
   tri.value = 'pertinence'
   filtres.value = {
     niveauId: null,
-    typeSupport: null
+    typeSupport: null,
+    thematiqueId: null,
+    difficulte: null,
+    tag: null
   }
   charger()
 }
@@ -765,4 +835,36 @@ const appliquerTriLocal = () => {
     padding: 4px 10px;
   }
 }
+
+.search-sidebar input {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1.5px solid #dee2e6;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 13px;
+  color: #1f2937;
+  background: #f9fafb;
+}
+.search-sidebar input:focus { outline: none; border-color: #6366f1; }
+
+.tags-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.tag-btn {
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.tag-btn:hover { border-color: #6366f1; color: #6366f1; }
+.tag-btn.active { background: #6366f1; border-color: #6366f1; color: white; }
 </style>

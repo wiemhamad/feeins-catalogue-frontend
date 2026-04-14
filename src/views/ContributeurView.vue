@@ -84,25 +84,13 @@
           </label>
 
           <label class="full">
-            <span>Fichier ou URL d'acces</span>
+            <span>URL d'acces</span>
             <div class="upload-tabs">
               <button type="button" :class="['upload-tab', uploadMode === 'url' ? 'active' : '']" @click="uploadMode = 'url'">URL</button>
-              <button type="button" :class="['upload-tab', uploadMode === 'file' ? 'active' : '']" @click="uploadMode = 'file'">Fichier local</button>
+              
             </div>
             <input v-if="uploadMode === 'url'" v-model="form.urlAcces" type="url" placeholder="https://moodle.univ-jfc.fr/..." />
-            <div v-else class="file-upload-zone" @dragover.prevent @drop.prevent="onFileDrop">
-              <input type="file" id="file-input" class="file-input-hidden" @change="onFileChange" accept=".pdf,.mp4,.mov,.avi,.h5p,.html,.zip" />
-              <label for="file-input" class="file-upload-label">
-                <span v-if="!selectedFile">
-                  Glissez un fichier ici ou <u>cliquez pour choisir</u><br />
-                  <small>PDF, video, H5P, HTML - max 200 Mo</small>
-                </span>
-                <span v-else class="file-selected">
-                  {{ selectedFile.name }} ({{ formatFileSize(selectedFile.size) }})
-                  <button type="button" class="file-clear" @click.prevent="clearFile">Retirer</button>
-                </span>
-              </label>
-            </div>
+         
           </label>
 
           <label>

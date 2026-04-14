@@ -199,8 +199,8 @@ const remplirEnseignant = () => {
 }
 
 const remplirContributeur = () => {
-  loginForm.value.email = 'contrib@feeins.fr'
-  loginForm.value.motDePasse = 'contrib123'
+  loginForm.value.email = 'contributeur@feeins.fr'
+  loginForm.value.motDePasse = 'contributeur'
 }
 
 const redirectParRole = (typeUtilisateur) => {

@@ -134,7 +134,6 @@
             v-for="r in ressourcesRecommandees"
             :key="r.id"
             class="reco-item"
-            @click="$router.push(`/ressource/${r.id}`)"
           >
             <div class="reco-icon" :style="{ background: iconBg(r.typeSupport) }">
               {{ iconeType(r.typeSupport) }}
@@ -242,7 +241,7 @@ const chargerThematiques = async () => {
       const icones = { 'Santé numérique':'💊', 'Intelligence Artificielle':'🤖', 'RGPD & Données':'🔒', 'Cybersécurité':'🛡️', 'Télémédecine':'🏥', 'Interopérabilité':'🔗', 'Système d\'information de santé':'🖥️', 'IoT Internet des objets':'📡', 'Gestion de parcours de soins':'🗺️', 'Éthique et réglementation':'⚖️' }
       qThematique.choix = [
         ...data.slice(0, 7).map(t => ({ valeur: t.id, label: t.nom, icone: icones[t.nom] || '📂' })),
-        { valeur: null, label: 'Tous les domaines', icone: '🌐' }
+        { valeur: 'TOUS', label: 'Tous les domaines', icone: '🌐' }
       ]
     }
   } catch { /* silencieux */ }
@@ -257,7 +256,7 @@ const questions = ref([
       { valeur: 'DEBUTANT',      label: 'Débutant',        detail: 'Je découvre la santé numérique', icone: '🌱', badge: 'Débutant' },
       { valeur: 'INTERMEDIAIRE', label: 'Intermédiaire',   detail: "J'ai déjà des bases solides", icone: '📈', badge: 'Intermédiaire' },
       { valeur: 'AVANCE',        label: 'Avancé',          detail: 'Je maîtrise les concepts clés', icone: '🚀', badge: 'Avancé' },
-      { valeur: null,            label: 'Enseignant / Expert', detail: 'Formation continue en santé numérique', icone: '👨‍🏫', badge: 'Expert' }
+      { valeur: 'EXPERT',        label: 'Enseignant / Expert', detail: 'Formation continue en santé numérique', icone: '👨‍🏫', badge: 'Expert' }
     ]
   },
   {
@@ -319,7 +318,7 @@ const profils = [
     icone: '👨‍🏫', titre: 'Enseignant / Professionnel',
     description: 'Des ressources pédagogiques pour enrichir vos cours.',
     tags: ['Professionnel', 'Pédagogie'],
-    condition: (r) => r.niveau === null || r.objectif === 'expert'
+    condition: (r) => r.niveau === 'EXPERT'
   }
 ]
 
@@ -385,13 +384,14 @@ const chargerRessources = async () => {
   loadingRessources.value = true
   try {
     const r = reponses.value
-    // thematique et typeSupport sont des tableaux (choix multiples)
-    const thematiques = Array.isArray(r.thematique) ? r.thematique.filter(Boolean) : (r.thematique ? [r.thematique] : [])
-    const types = Array.isArray(r.typeSupport) ? r.typeSupport.filter(Boolean) : (r.typeSupport ? [r.typeSupport] : [])
+    // Filtrer les valeurs spéciales TOUS et EXPERT
+    const isSpecial = v => v === 'TOUS' || v === 'EXPERT' || v === null || v === undefined
+    const thematiques = (Array.isArray(r.thematique) ? r.thematique : [r.thematique]).filter(v => !isSpecial(v))
+    const types = (Array.isArray(r.typeSupport) ? r.typeSupport : [r.typeSupport]).filter(v => !isSpecial(v))
 
-    // On fait une recherche par thématique (prendre la première) et types
     const criteres = {}
-    if (r.niveau) criteres.difficulte = r.niveau
+    // Niveau → difficulté (ignorer EXPERT = pas de filtre de difficulté)
+    if (r.niveau && r.niveau !== 'EXPERT') criteres.difficulte = r.niveau
     if (thematiques.length === 1) criteres.thematiqueId = thematiques[0]
     if (types.length === 1) criteres.typeSupport = types[0]
     if (r.dureeMax && r.dureeMax !== 999) criteres.dureeMax = r.dureeMax
@@ -407,7 +407,7 @@ const chargerRessources = async () => {
     const thems = Array.isArray(r.thematique) ? r.thematique.filter(Boolean) : []
     const typs  = Array.isArray(r.typeSupport) ? r.typeSupport.filter(Boolean) : []
     profilSauvegarde.value = {
-      difficulte: r.niveau || null,
+      difficulte: (r.niveau && r.niveau !== 'EXPERT') ? r.niveau : null,
       thematiqueIds: thems,
       typeSupports: typs,
       dureeMax: r.dureeMax !== 999 ? r.dureeMax : null
@@ -644,7 +644,6 @@ const labelDiff = (d) => ({ DEBUTANT:'Débutant', INTERMEDIAIRE:'Intermédiaire'
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 14px;
-  cursor: pointer;
   text-align: left;
   transition: all 0.2s;
   width: 100%;
@@ -887,13 +886,6 @@ const labelDiff = (d) => ({ DEBUTANT:'Débutant', INTERMEDIAIRE:'Intermédiaire'
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 12px;
   padding: 12px 14px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.reco-item:hover {
-  background: rgba(255,255,255,0.1);
-  border-color: rgba(255,255,255,0.18);
-  transform: translateX(3px);
 }
 
 .reco-icon {

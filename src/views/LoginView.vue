@@ -200,7 +200,7 @@ const remplirEnseignant = () => {
 
 const remplirContributeur = () => {
   loginForm.value.email = 'contributeur@feeins.fr'
-  loginForm.value.motDePasse = 'contributeur'
+  loginForm.value.motDePasse = 'contributeur123'
 }
 
 const redirectParRole = (typeUtilisateur) => {

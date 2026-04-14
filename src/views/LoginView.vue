@@ -54,7 +54,7 @@
           <strong>Etudiants et visiteurs</strong> : vous pouvez
           <RouterLink to="/catalogue">consulter le catalogue</RouterLink> et
           <RouterLink to="/quiz">faire le quiz</RouterLink>
-          <strong>sans compte</strong>.
+          <strong> sans compte</strong>.
         </div>
 
         <div class="tabs">

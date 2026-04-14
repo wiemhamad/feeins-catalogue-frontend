@@ -48,15 +48,15 @@
 
         <!-- THÉMATIQUES -->
         <div class="sidebar-block" v-if="thematiques.length">
-          <h3>Thématique</h3>
+          <h3>Thématique <span v-if="filtres.thematiqueIds.length" class="count-badge">{{ filtres.thematiqueIds.length }}</span></h3>
           <div class="filter-group">
             <button
               v-for="t in thematiques"
               :key="t.id"
               type="button"
               class="filter-checkbox"
-              :class="{ active: filtres.thematiqueId === t.id }"
-              @click="setFiltre('thematiqueId', t.id)"
+              :class="{ active: estActif('thematiqueIds', t.id) }"
+              @click="setFiltre('thematiqueIds', t.id)"
             >
               <span class="checkbox"></span>{{ t.nom }}
             </button>
@@ -65,15 +65,15 @@
 
         <!-- TYPE DE CONTENU -->
         <div class="sidebar-block" v-if="typesFiltres.length">
-          <h3>Type de contenu</h3>
+          <h3>Type de contenu <span v-if="filtres.typeSupports.length" class="count-badge">{{ filtres.typeSupports.length }}</span></h3>
           <div class="filter-group">
             <button
               v-for="type in typesFiltres"
               :key="String(type.value)"
               type="button"
               class="filter-checkbox"
-              :class="{ active: filtres.typeSupport === type.value }"
-              @click="setFiltre('typeSupport', type.value)"
+              :class="{ active: estActif('typeSupports', type.value) }"
+              @click="setFiltre('typeSupports', type.value)"
             >
               <span class="checkbox"></span>{{ type.label }}
             </button>
@@ -82,15 +82,15 @@
 
         <!-- DIFFICULTÉ -->
         <div class="sidebar-block" v-if="difficultes.length">
-          <h3>Difficulté</h3>
+          <h3>Difficulté <span v-if="filtres.difficultes.length" class="count-badge">{{ filtres.difficultes.length }}</span></h3>
           <div class="filter-group">
             <button
               v-for="d in difficultes"
               :key="d.value"
               type="button"
               class="filter-checkbox"
-              :class="{ active: filtres.difficulte === d.value }"
-              @click="setFiltre('difficulte', d.value)"
+              :class="{ active: estActif('difficultes', d.value) }"
+              @click="setFiltre('difficultes', d.value)"
             >
               <span class="checkbox"></span>{{ d.label }}
             </button>
@@ -149,10 +149,24 @@
             Niveau: <strong>{{ getActiveNiveauLabel }}</strong>
             <button @click="setFiltre('niveauId', null)" class="tag-remove">✕</button>
           </div>
-          <div class="filter-tag" v-if="filtres.typeSupport">
-            Type: <strong>{{ getActivetypeLabel }}</strong>
-            <button @click="setFiltre('typeSupport', null)" class="tag-remove">✕</button>
-          </div>
+          <template v-for="tid in filtres.thematiqueIds" :key="'th-'+tid">
+            <div class="filter-tag">
+              📂 <strong>{{ thematiques.find(t => t.id === tid)?.nom }}</strong>
+              <button @click="setFiltre('thematiqueIds', tid)" class="tag-remove">✕</button>
+            </div>
+          </template>
+          <template v-for="tp in filtres.typeSupports" :key="'tp-'+tp">
+            <div class="filter-tag">
+              🎬 <strong>{{ typesFiltres.find(t => t.value === tp)?.label || tp }}</strong>
+              <button @click="setFiltre('typeSupports', tp)" class="tag-remove">✕</button>
+            </div>
+          </template>
+          <template v-for="df in filtres.difficultes" :key="'df-'+df">
+            <div class="filter-tag">
+              📊 <strong>{{ difficultes.find(d => d.value === df)?.label || df }}</strong>
+              <button @click="setFiltre('difficultes', df)" class="tag-remove">✕</button>
+            </div>
+          </template>
           <div class="filter-tag" v-if="keyword">
             Mot-clé: <strong>"{{ keyword }}"</strong>
             <button @click="keyword = ''; charger()" class="tag-remove">✕</button>
@@ -201,11 +215,11 @@ const loading = ref(true)
 const keyword = ref('')
 const tri = ref('pertinence')
 const filtres = ref({
-  niveauId: null,
-  typeSupport: null,
-  thematiqueId: null,
-  difficulte: null,
-  tag: null
+  niveauId: null,          // choix unique
+  thematiqueIds: [],       // choix multiple
+  typeSupports: [],        // choix multiple
+  difficultes: [],         // choix multiple
+  tag: null                // choix unique
 })
 
 let searchTimer = null
@@ -227,9 +241,9 @@ const total = computed(() => ressources.value.length)
 
 const hasActiveFilters = computed(() => {
   return filtres.value.niveauId !== null ||
-         filtres.value.typeSupport !== null ||
-         filtres.value.thematiqueId !== null ||
-         filtres.value.difficulte !== null ||
+         filtres.value.thematiqueIds.length > 0 ||
+         filtres.value.typeSupports.length > 0 ||
+         filtres.value.difficultes.length > 0 ||
          filtres.value.tag !== null ||
          keyword.value.trim() !== ''
 })
@@ -271,20 +285,41 @@ const charger = async () => {
       payload.keyword = keyword.value.trim()
     }
 
-    if (filtres.value.niveauId) {
-      payload.niveauId = filtres.value.niveauId
+    if (filtres.value.niveauId) payload.niveauId = filtres.value.niveauId
+    if (filtres.value.tag)      payload.tag      = filtres.value.tag
+
+    const themes = filtres.value.thematiqueIds
+    const types  = filtres.value.typeSupports
+    const diffs  = filtres.value.difficultes
+
+    // Aucun filtre → charger tout
+    if (!themes.length && !types.length && !diffs.length && !Object.keys(payload).length) {
+      const res = await api.get('/api/ressources')
+      ressources.value = res.data || []
+    } else {
+      // Construire les combinaisons de requêtes
+      const themeList = themes.length ? themes : [null]
+      const typeList  = types.length  ? types  : [null]
+      const diffList  = diffs.length  ? diffs  : [null]
+
+      const promises = []
+      for (const thId of themeList) {
+        for (const tp of typeList) {
+          for (const df of diffList) {
+            const p = { ...payload }
+            if (thId) p.thematiqueId = thId
+            if (tp)   p.typeSupport  = tp
+            if (df)   p.difficulte   = df
+            promises.push(api.post('/api/ressources/rechercher', p).then(r => r.data || []))
+          }
+        }
+      }
+      const results = await Promise.all(promises)
+      // Fusionner et dédupliquer par id
+      const map = new Map()
+      results.flat().forEach(r => map.set(r.id, r))
+      ressources.value = Array.from(map.values())
     }
-
-    if (filtres.value.typeSupport)  payload.typeSupport  = filtres.value.typeSupport
-    if (filtres.value.thematiqueId) payload.thematiqueId = filtres.value.thematiqueId
-    if (filtres.value.difficulte)   payload.difficulte   = filtres.value.difficulte
-    if (filtres.value.tag)          payload.tag          = filtres.value.tag
-
-    const response = Object.keys(payload).length > 0
-      ? await api.post('/api/ressources/rechercher', payload)
-      : await api.get('/api/ressources')
-
-    ressources.value = response.data || []
     appliquerTriLocal()
   } catch (error) {
     ressources.value = []
@@ -297,16 +332,30 @@ onMounted(async () => {
   await chargerReferentiels()
   // Appliquer les filtres du quiz de positionnement si présents
   const q = route.query
-  if (q.difficulte) filtres.value.difficulte = q.difficulte
-  if (q.thematiqueId) filtres.value.thematiqueId = Number(q.thematiqueId)
-  if (q.typeSupport) filtres.value.typeSupport = q.typeSupport
+  if (q.difficulte) filtres.value.difficultes = [q.difficulte]
+  if (q.thematiqueId) filtres.value.thematiqueIds = [Number(q.thematiqueId)]
+  if (q.typeSupport) filtres.value.typeSupports = [q.typeSupport]
   if (q.dureeMax) filtres.value.dureeMax = Number(q.dureeMax)  // handled in search payload
   await charger()
 })
 
 const setFiltre = (key, value) => {
-  filtres.value[key] = filtres.value[key] === value ? null : value
+  const multiKeys = ['thematiqueIds', 'typeSupports', 'difficultes']
+  if (multiKeys.includes(key)) {
+    const arr = filtres.value[key]
+    const idx = arr.indexOf(value)
+    if (idx === -1) arr.push(value)
+    else arr.splice(idx, 1)
+  } else {
+    filtres.value[key] = filtres.value[key] === value ? null : value
+  }
   charger()
+}
+
+const estActif = (key, value) => {
+  const multiKeys = ['thematiqueIds', 'typeSupports', 'difficultes']
+  if (multiKeys.includes(key)) return filtres.value[key].includes(value)
+  return filtres.value[key] === value
 }
 
 const onSearch = () => {
@@ -319,9 +368,9 @@ const resetFiltres = () => {
   tri.value = 'pertinence'
   filtres.value = {
     niveauId: null,
-    typeSupport: null,
-    thematiqueId: null,
-    difficulte: null,
+    thematiqueIds: [],
+    typeSupports: [],
+    difficultes: [],
     tag: null
   }
   charger()
@@ -875,4 +924,39 @@ const appliquerTriLocal = () => {
 }
 .tag-btn:hover { border-color: #6366f1; color: #6366f1; }
 .tag-btn.active { background: #6366f1; border-color: #6366f1; color: white; }
+
+.count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: var(--primary, #6366f1);
+  color: white;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+.filter-checkbox.active {
+  background: linear-gradient(135deg, #eef2ff, #f5f3ff);
+  color: #4338ca;
+  font-weight: 600;
+  border-color: #6366f1;
+}
+
+.filter-checkbox.active .checkbox::after {
+  content: '✓';
+  color: white;
+  font-size: 11px;
+  line-height: 1;
+}
+
+.filter-checkbox.active .checkbox {
+  background: #6366f1;
+  border-color: #6366f1;
+}
 </style>

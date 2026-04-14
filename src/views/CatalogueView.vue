@@ -31,15 +31,15 @@
 
         <!-- NIVEAUX -->
         <div class="sidebar-block">
-          <h3>Niveau</h3>
+          <h3>Niveau <span v-if="filtres.niveauIds.length" class="count-badge">{{ filtres.niveauIds.length }}</span></h3>
           <div class="filter-group">
             <button
               v-for="niveau in niveauxFiltres"
               :key="String(niveau.value)"
               type="button"
               class="filter-checkbox"
-              :class="{ active: filtres.niveauId === niveau.value }"
-              @click="setFiltre('niveauId', niveau.value)"
+              :class="{ active: estActif('niveauIds', niveau.value) }"
+              @click="setFiltre('niveauIds', niveau.value)"
             >
               <span class="checkbox"></span>{{ niveau.label }}
             </button>
@@ -145,10 +145,12 @@
 
         <!-- Active Filters Display -->
         <div v-if="hasActiveFilters" class="active-filters">
-          <div class="filter-tag" v-if="filtres.niveauId">
-            Niveau: <strong>{{ getActiveNiveauLabel }}</strong>
-            <button @click="setFiltre('niveauId', null)" class="tag-remove">✕</button>
-          </div>
+          <template v-for="nid in filtres.niveauIds" :key="'nv-'+nid">
+            <div class="filter-tag">
+              🎓 <strong>{{ niveaux.find(n => n.id === nid)?.nom }}</strong>
+              <button @click="setFiltre('niveauIds', nid)" class="tag-remove">✕</button>
+            </div>
+          </template>
           <template v-for="tid in filtres.thematiqueIds" :key="'th-'+tid">
             <div class="filter-tag">
               📂 <strong>{{ thematiques.find(t => t.id === tid)?.nom }}</strong>
@@ -215,7 +217,7 @@ const loading = ref(true)
 const keyword = ref('')
 const tri = ref('pertinence')
 const filtres = ref({
-  niveauId: null,          // choix unique
+  niveauIds: [],           // choix multiple
   thematiqueIds: [],       // choix multiple
   typeSupports: [],        // choix multiple
   difficultes: [],         // choix multiple
@@ -224,13 +226,12 @@ const filtres = ref({
 
 let searchTimer = null
 
-const niveauxFiltres = computed(() => [
-  { value: null, label: 'Tous les niveaux' },
-  ...niveaux.value.map((niveau) => ({
+const niveauxFiltres = computed(() =>
+  niveaux.value.map((niveau) => ({
     value: niveau.id,
     label: niveau.nom
   }))
-])
+)
 
 const typesFiltres = ref([])
 const difficultes = ref([])
@@ -240,7 +241,7 @@ const tags = ref([])
 const total = computed(() => ressources.value.length)
 
 const hasActiveFilters = computed(() => {
-  return filtres.value.niveauId !== null ||
+  return filtres.value.niveauIds.length > 0 ||
          filtres.value.thematiqueIds.length > 0 ||
          filtres.value.typeSupports.length > 0 ||
          filtres.value.difficultes.length > 0 ||
@@ -285,7 +286,7 @@ const charger = async () => {
       payload.keyword = keyword.value.trim()
     }
 
-    if (filtres.value.niveauId) payload.niveauId = filtres.value.niveauId
+    // niveaux gérés dans la boucle multi
     if (filtres.value.tag)      payload.tag      = filtres.value.tag
 
     const themes = filtres.value.thematiqueIds
@@ -298,19 +299,23 @@ const charger = async () => {
       ressources.value = res.data || []
     } else {
       // Construire les combinaisons de requêtes
+      const niveList  = filtres.value.niveauIds.length ? filtres.value.niveauIds : [null]
       const themeList = themes.length ? themes : [null]
       const typeList  = types.length  ? types  : [null]
       const diffList  = diffs.length  ? diffs  : [null]
 
       const promises = []
-      for (const thId of themeList) {
-        for (const tp of typeList) {
-          for (const df of diffList) {
-            const p = { ...payload }
-            if (thId) p.thematiqueId = thId
-            if (tp)   p.typeSupport  = tp
-            if (df)   p.difficulte   = df
-            promises.push(api.post('/api/ressources/rechercher', p).then(r => r.data || []))
+      for (const nvId of niveList) {
+        for (const thId of themeList) {
+          for (const tp of typeList) {
+            for (const df of diffList) {
+              const p = { ...payload }
+              if (nvId) p.niveauId    = nvId
+              if (thId) p.thematiqueId = thId
+              if (tp)   p.typeSupport  = tp
+              if (df)   p.difficulte   = df
+              promises.push(api.post('/api/ressources/rechercher', p).then(r => r.data || []))
+            }
           }
         }
       }
@@ -333,6 +338,7 @@ onMounted(async () => {
   // Appliquer les filtres du quiz de positionnement si présents
   const q = route.query
   if (q.difficulte) filtres.value.difficultes = [q.difficulte]
+  if (q.niveauId) filtres.value.niveauIds = [Number(q.niveauId)]
   if (q.thematiqueId) filtres.value.thematiqueIds = [Number(q.thematiqueId)]
   if (q.typeSupport) filtres.value.typeSupports = [q.typeSupport]
   if (q.dureeMax) filtres.value.dureeMax = Number(q.dureeMax)  // handled in search payload
@@ -340,7 +346,7 @@ onMounted(async () => {
 })
 
 const setFiltre = (key, value) => {
-  const multiKeys = ['thematiqueIds', 'typeSupports', 'difficultes']
+  const multiKeys = ['niveauIds', 'thematiqueIds', 'typeSupports', 'difficultes']
   if (multiKeys.includes(key)) {
     const arr = filtres.value[key]
     const idx = arr.indexOf(value)
@@ -353,7 +359,7 @@ const setFiltre = (key, value) => {
 }
 
 const estActif = (key, value) => {
-  const multiKeys = ['thematiqueIds', 'typeSupports', 'difficultes']
+  const multiKeys = ['niveauIds', 'thematiqueIds', 'typeSupports', 'difficultes']
   if (multiKeys.includes(key)) return filtres.value[key].includes(value)
   return filtres.value[key] === value
 }
@@ -367,7 +373,7 @@ const resetFiltres = () => {
   keyword.value = ''
   tri.value = 'pertinence'
   filtres.value = {
-    niveauId: null,
+    niveauIds: [],
     thematiqueIds: [],
     typeSupports: [],
     difficultes: [],

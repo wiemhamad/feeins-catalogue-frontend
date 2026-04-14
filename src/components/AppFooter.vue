@@ -52,7 +52,7 @@
 
       <div class="footer-bottom">
         <p>© 2026 FEEINS</p>
-        <p>Tous droits reserves</p>
+        <p>Tous Droits Réservés</p>
       </div>
     </div>
   </footer>

@@ -280,43 +280,42 @@ const charger = async () => {
   loading.value = true
 
   try {
-    const payload = {}
-
-    if (keyword.value.trim()) {
-      payload.keyword = keyword.value.trim()
-    }
-
-    // niveaux gérés dans la boucle multi
-    if (filtres.value.tag)      payload.tag      = filtres.value.tag
-
-    const themes = filtres.value.thematiqueIds
-    const types  = filtres.value.typeSupports
-    const diffs  = filtres.value.difficultes
-
+    const kw        = keyword.value.trim()
     const niveaux_sel = filtres.value.niveauIds
+    const themes    = filtres.value.thematiqueIds
+    const types     = filtres.value.typeSupports
+    const diffs     = filtres.value.difficultes
+    const tag       = filtres.value.tag || null
 
-    // Aucun filtre → charger tout
-    if (!niveaux_sel.length && !themes.length && !types.length && !diffs.length && !Object.keys(payload).length) {
+    const aucunFiltre = !kw && !niveaux_sel.length && !themes.length &&
+                        !types.length && !diffs.length && !tag
+
+    if (aucunFiltre) {
+      // Aucun filtre → tout charger
       const res = await api.get('/api/ressources')
       ressources.value = res.data || []
     } else {
-      // Construire les combinaisons de requêtes
+      // Boucle combinatoire sur les filtres multiples
       const niveList  = niveaux_sel.length ? niveaux_sel : [null]
-      const themeList = themes.length ? themes : [null]
-      const typeList  = types.length  ? types  : [null]
-      const diffList  = diffs.length  ? diffs  : [null]
+      const themeList = themes.length      ? themes      : [null]
+      const typeList  = types.length       ? types       : [null]
+      const diffList  = diffs.length       ? diffs       : [null]
 
       const promises = []
       for (const nvId of niveList) {
         for (const thId of themeList) {
           for (const tp of typeList) {
             for (const df of diffList) {
-              const p = { ...payload }
-              if (nvId) p.niveauId    = nvId
+              const p = {}
+              if (kw)   p.keyword      = kw
+              if (tag)  p.tag          = tag
+              if (nvId) p.niveauId     = nvId
               if (thId) p.thematiqueId = thId
               if (tp)   p.typeSupport  = tp
               if (df)   p.difficulte   = df
-              promises.push(api.post('/api/ressources/rechercher', p).then(r => r.data || []))
+              promises.push(
+                api.post('/api/ressources/rechercher', p).then(r => r.data || [])
+              )
             }
           }
         }

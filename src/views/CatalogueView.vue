@@ -293,13 +293,15 @@ const charger = async () => {
     const types  = filtres.value.typeSupports
     const diffs  = filtres.value.difficultes
 
+    const niveaux_sel = filtres.value.niveauIds
+
     // Aucun filtre → charger tout
-    if (!themes.length && !types.length && !diffs.length && !Object.keys(payload).length) {
+    if (!niveaux_sel.length && !themes.length && !types.length && !diffs.length && !Object.keys(payload).length) {
       const res = await api.get('/api/ressources')
       ressources.value = res.data || []
     } else {
       // Construire les combinaisons de requêtes
-      const niveList  = filtres.value.niveauIds.length ? filtres.value.niveauIds : [null]
+      const niveList  = niveaux_sel.length ? niveaux_sel : [null]
       const themeList = themes.length ? themes : [null]
       const typeList  = types.length  ? types  : [null]
       const diffList  = diffs.length  ? diffs  : [null]

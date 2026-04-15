@@ -99,15 +99,15 @@
 
         <!-- TAGS -->
         <div class="sidebar-block" v-if="tags.length">
-          <h3>Tags</h3>
+          <h3>Tags <span v-if="filtres.tags.length" class="count-badge">{{ filtres.tags.length }}</span></h3>
           <div class="tags-cloud">
             <button
               v-for="tag in tags"
               :key="tag.id"
               type="button"
               class="tag-btn"
-              :class="{ active: filtres.tag === tag.libelle }"
-              @click="setFiltre('tag', tag.libelle)"
+              :class="{ active: estActif('tags', tag.libelle) }"
+              @click="setFiltre('tags', tag.libelle)"
             >
               #{{ tag.libelle }}
             </button>
@@ -221,7 +221,7 @@ const filtres = ref({
   thematiqueIds: [],       // choix multiple
   typeSupports: [],        // choix multiple
   difficultes: [],         // choix multiple
-  tag: null                // choix unique
+  tags: []                 // choix multiple
 })
 
 let searchTimer = null
@@ -245,7 +245,7 @@ const hasActiveFilters = computed(() => {
          filtres.value.thematiqueIds.length > 0 ||
          filtres.value.typeSupports.length > 0 ||
          filtres.value.difficultes.length > 0 ||
-         filtres.value.tag !== null ||
+         filtres.value.tags.length > 0 ||
          keyword.value.trim() !== ''
 })
 
@@ -285,10 +285,10 @@ const charger = async () => {
     const themes    = filtres.value.thematiqueIds
     const types     = filtres.value.typeSupports
     const diffs     = filtres.value.difficultes
-    const tag       = filtres.value.tag || null
+    const tags_sel  = filtres.value.tags
 
     const aucunFiltre = !kw && !niveaux_sel.length && !themes.length &&
-                        !types.length && !diffs.length && !tag
+                        !types.length && !diffs.length && !tags_sel.length
 
     if (aucunFiltre) {
       // Aucun filtre → tout charger
@@ -300,22 +300,25 @@ const charger = async () => {
       const themeList = themes.length      ? themes      : [null]
       const typeList  = types.length       ? types       : [null]
       const diffList  = diffs.length       ? diffs       : [null]
+      const tagList   = tags_sel.length    ? tags_sel    : [null]
 
       const promises = []
       for (const nvId of niveList) {
         for (const thId of themeList) {
           for (const tp of typeList) {
             for (const df of diffList) {
-              const p = {}
-              if (kw)   p.keyword      = kw
-              if (tag)  p.tag          = tag
-              if (nvId) p.niveauId     = nvId
-              if (thId) p.thematiqueId = thId
-              if (tp)   p.typeSupport  = tp
-              if (df)   p.difficulte   = df
-              promises.push(
-                api.post('/api/ressources/rechercher', p).then(r => r.data || [])
-              )
+              for (const tg of tagList) {
+                const p = {}
+                if (kw)   p.keyword      = kw
+                if (tg)   p.tag          = tg
+                if (nvId) p.niveauId     = nvId
+                if (thId) p.thematiqueId = thId
+                if (tp)   p.typeSupport  = tp
+                if (df)   p.difficulte   = df
+                promises.push(
+                  api.post('/api/ressources/rechercher', p).then(r => r.data || [])
+                )
+              }
             }
           }
         }
@@ -347,7 +350,7 @@ onMounted(async () => {
 })
 
 const setFiltre = (key, value) => {
-  const multiKeys = ['niveauIds', 'thematiqueIds', 'typeSupports', 'difficultes']
+  const multiKeys = ['niveauIds', 'thematiqueIds', 'typeSupports', 'difficultes', 'tags']
   if (multiKeys.includes(key)) {
     const arr = filtres.value[key]
     const idx = arr.indexOf(value)
@@ -360,7 +363,7 @@ const setFiltre = (key, value) => {
 }
 
 const estActif = (key, value) => {
-  const multiKeys = ['niveauIds', 'thematiqueIds', 'typeSupports', 'difficultes']
+  const multiKeys = ['niveauIds', 'thematiqueIds', 'typeSupports', 'difficultes', 'tags']
   if (multiKeys.includes(key)) return filtres.value[key].includes(value)
   return filtres.value[key] === value
 }
@@ -378,7 +381,7 @@ const resetFiltres = () => {
     thematiqueIds: [],
     typeSupports: [],
     difficultes: [],
-    tag: null
+    tags: []
   }
   charger()
 }
